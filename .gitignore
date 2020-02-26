@@ -1,2 +1,7 @@
 .venv/
 .vscode/
+.coverage
+set_aws_mfa.log
+src/set_aws_mfa.egg-info/
+tests/func/__pycache__/
+tests/unit/__pycache__/

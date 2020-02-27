@@ -102,7 +102,7 @@ def is_this_file_exists_in_local(local_file_path: str) -> bool:
 
 def check_aws_config_existence():
     """
-    Check if ~/.aws/config exitests
+    Check if ~/.aws/config exists
     """
     if not is_this_file_exists_in_local(AWS_CONFIG):
         raise FileNotFoundError(NO_AWS_CONFIG_ERROR)
@@ -110,7 +110,7 @@ def check_aws_config_existence():
 
 def check_aws_credentials_existence():
     """
-    Check if ~/.aws/credentials exitests
+    Check if ~/.aws/credentials exists
     """
     if not is_this_file_exists_in_local(AWS_CREDENTIALS):
         raise FileNotFoundError(NO_AWS_CREDENTIALS_ERROR)

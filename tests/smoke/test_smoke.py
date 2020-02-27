@@ -79,11 +79,11 @@ def test_no_aws_config_prompts_message(set_fake_files):
 
     # GIVEN: a fake path of target file
     # WHEN: Check if the file exists
-    with pytest.raises(FileNotFoundError) as exeption_info:
+    with pytest.raises(FileNotFoundError) as exception_info:
         set_aws_mfa.check_aws_config_existence()
 
     # THEN: Raises FileNotFoundError
-    exception_msg = exeption_info.value.args[0]
+    exception_msg = exception_info.value.args[0]
     assert exception_msg == set_aws_mfa.NO_AWS_CONFIG_ERROR
 
 

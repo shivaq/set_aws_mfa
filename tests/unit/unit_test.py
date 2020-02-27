@@ -52,6 +52,14 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成を促すプロンプトを表示する
+
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める
+
+# TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
+
+
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
 def test_get_aws_account_id_for_the_profile(perfect_profile_list):
 
     # GIVEN: a ProfileTuple
@@ -64,6 +72,7 @@ def test_get_aws_account_id_for_the_profile(perfect_profile_list):
     assert type(aws_account_id) == int
 
 
+# TODO: テスト該当プロファイルのMFA ARN を取得する
 def test_get_mfa_arn(perfect_profile_list):
 
     # GIVEN: a ProfileTuple
@@ -76,12 +85,8 @@ def test_get_mfa_arn(perfect_profile_list):
     assert profile.name in mfa_arn
 
 
-# def ユーザーの入力したMFAトークンを受けて、AWSから受け取ったトークンを環境変数に渡せるかどうか？
-# ユーザーにトークン入力を促す
-# 受け取ったトークンで認証を試みる
-# テスト：認証が成功した場合
-# テスト：認証に失敗した場合
-# それぞれ確認
-# チェック：認証が成功した場合のトークンを表示する
-# トークンを使ってAWSリソースにアクセスできる状態にする
-# テスト：上記状態になっているかどうか
+# TODO: 受け取ったトークンで認証を試みる
+# TODO: テスト：認証に失敗した場合
+# TODO: テスト：認証が成功したことを確認
+# TODO: テスト：認証が成功したことを表示
+# TODO: テスト：AWS 受け取ったトークンを環境変数に設定できる？

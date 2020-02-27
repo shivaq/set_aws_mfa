@@ -94,13 +94,17 @@ class ProfileNumInput:
 ################################
 
 
+def is_this_file_exists_in_local(local_file_path: str) -> bool:
+    """ローカルファイルが存在しているか否かを返す"""
+    filename = os.path.expanduser(local_file_path)
+    return os.path.exists(filename)
+
+
 def check_aws_config_existence():
     """
     Check if ~/.aws/config exitests
     """
-    config_file = AWS_CONFIG
-    filename = os.path.expanduser(config_file)
-    if not os.path.exists(filename):
+    if not is_this_file_exists_in_local(AWS_CONFIG):
         raise FileNotFoundError(NO_AWS_CONFIG_ERROR)
 
 
@@ -108,9 +112,7 @@ def check_aws_credentials_existence():
     """
     Check if ~/.aws/credentials exitests
     """
-    config_file = AWS_CREDENTIALS
-    filename = os.path.expanduser(config_file)
-    if not os.path.exists(filename):
+    if not is_this_file_exists_in_local(AWS_CREDENTIALS):
         raise FileNotFoundError(NO_AWS_CREDENTIALS_ERROR)
 
 

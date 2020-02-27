@@ -14,18 +14,12 @@ def set_fake_files():
     set_aws_mfa.AWS_CREDENTIALS = "~/.aws/credentials"
 
 
-def check_local_file_existence(local_file_path: str) -> bool:
-    """ローカルファイルが存在しているか否かを返す"""
-    filename = os.path.expanduser(local_file_path)
-    return os.path.exists(filename)
-
-
 # 1. ~/.aws/config が存在していること
 def test_aws_config_exists():
     # GIVEN: the path of target file
     # WHEN: get the path in local pc
     # THEN: the file exists
-    assert check_local_file_existence(set_aws_mfa.AWS_CONFIG)
+    assert set_aws_mfa.is_this_file_exists_in_local(set_aws_mfa.AWS_CONFIG)
 
 
 # 1. ~/.aws/credentials が存在していること
@@ -33,7 +27,7 @@ def test_aws_credentials_exists():
     # GIVEN: the path of target file
     # WHEN: get the path in local pc
     # THEN: the file exists
-    assert check_local_file_existence(set_aws_mfa.AWS_CREDENTIALS)
+    assert set_aws_mfa.is_this_file_exists_in_local(set_aws_mfa.AWS_CREDENTIALS)
 
 
 # 1.  ~/.aws/config の内容を取得する

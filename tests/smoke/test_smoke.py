@@ -5,6 +5,7 @@ from set_aws_mfa import set_aws_mfa
 import unittest.mock as mock
 import pytest
 
+
 @pytest.fixture
 def set_fake_files():
     set_aws_mfa.AWS_CONFIG = "~/.fake/fake"

@@ -100,6 +100,17 @@ def is_this_file_exists_in_local(local_file_path: str) -> bool:
     return os.path.exists(filename)
 
 
+def prepare_to_read_local_ini_file(abs_file_path):
+    """
+    Read an ini file to read data from it with configparser
+    """
+    filename = os.path.expanduser(abs_file_path)
+    with open(filename) as cfg:
+        Config.clear()
+        # 該当 ini ファイルを Config に読み込む
+        Config.read_file(cfg)
+
+
 def check_aws_config_existence():
     """
     Check if ~/.aws/config exists
@@ -116,19 +127,9 @@ def check_aws_credentials_existence():
         raise FileNotFoundError(NO_AWS_CREDENTIALS_ERROR)
 
 
-def prepare_aws_config():
-    """~/.aws/config を読み込む"""
-    config_file = AWS_CONFIG
-    filename = os.path.expanduser(config_file)
-    with open(filename) as cfg:
-        Config.clear()
-        # 該当 ini ファイルを Config に読み込む
-        Config.read_file(cfg)
-
-
 def get_aws_config_section_dict() -> collections.OrderedDict:
     """~/.aws/config から Section 情報を取得する"""
-    prepare_aws_config()
+    prepare_to_read_local_ini_file(AWS_CONFIG)
     # 該当 ini ファイルのセクション dictionary を取得
     return Config._sections
 
@@ -176,19 +177,9 @@ def get_profile_obj_list() -> list:
     return profile_list
 
 
-def prepare_aws_credentials():
-    """~/.aws/credentials を読み込む"""
-    config_file = AWS_CREDENTIALS
-    filename = os.path.expanduser(config_file)
-    with open(filename) as cfg:
-        Config.clear()
-        # 該当 ini ファイルを Config に読み込む
-        Config.read_file(cfg)
-
-
 def get_aws_credentials_section_dict() -> collections.OrderedDict:
     """~/.aws/credentials から Section 情報を取得する"""
-    prepare_aws_credentials()
+    prepare_to_read_local_ini_file(AWS_CREDENTIALS)
     # 該当 ini ファイルのセクション dictionary を取得
     return Config._sections
 

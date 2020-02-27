@@ -14,6 +14,7 @@ def set_fake_files():
     set_aws_mfa.AWS_CONFIG = "~/.aws/config"
     set_aws_mfa.AWS_CREDENTIALS = "~/.aws/credentials"
 
+
 # 1. ~/.aws/config が存在していること
 def test_aws_config_exists():
 
@@ -21,8 +22,9 @@ def test_aws_config_exists():
     config_file = set_aws_mfa.AWS_CONFIG
     # WHEN: get the path in local pc
     filename = os.path.expanduser(config_file)
-    # THEN: the file exitsts
+    # THEN: the file exists
     assert os.path.exists(filename)
+
 
 # 1. ~/.aws/credentials が存在していること
 def test_aws_credentials_exists():
@@ -31,8 +33,9 @@ def test_aws_credentials_exists():
     config_file = set_aws_mfa.AWS_CREDENTIALS
     # WHEN: get the path in local pc
     filename = os.path.expanduser(config_file)
-    # THEN: the file exitsts
+    # THEN: the file exists
     assert os.path.exists(filename)
+
 
 # 1.  ~/.aws/config の内容を取得する
 def test_get_aws_config_section_dict():
@@ -61,6 +64,7 @@ def test_get_aws_credentials_section_dict():
     credentials_dict = set_aws_mfa.get_aws_credentials_section_dict()
     assert len(credentials_dict) != 0
 
+
 # 1. Credentials クラスを取得できる
 def test_get_aws_credentials_object_list():
     """Credentials クラスを取得できる"""
@@ -70,13 +74,12 @@ def test_get_aws_credentials_object_list():
         for i in credentials_list:
             assert isinstance(i, set_aws_mfa.CredentialTuple)
 
+
 # 1. ~/.aws/config が存在していない場合、その旨標準出力されること
-
-
 def test_no_aws_config_prompts_message(set_fake_files):
 
     # GIVEN: a fake path of target file
-    # WHEN: Check if the file exitsts
+    # WHEN: Check if the file exists
     with pytest.raises(FileNotFoundError) as exeption_info:
         set_aws_mfa.check_aws_config_existence()
 
@@ -89,10 +92,10 @@ def test_no_aws_config_prompts_message(set_fake_files):
 def test_no_aws_credentials_prompts_message(set_fake_files):
 
     # GIVEN: a fake path of target file
-    # WHEN: Check if the file exitsts
-    with pytest.raises(FileNotFoundError) as exeption_info:
+    # WHEN: Check if the file exists
+    with pytest.raises(FileNotFoundError) as exception_info:
         set_aws_mfa.check_aws_credentials_existence()
 
     # THEN: Raises FileNotFoundError
-    exception_msg = exeption_info.value.args[0]
+    exception_msg = exception_info.value.args[0]
     assert exception_msg == set_aws_mfa.NO_AWS_CREDENTIALS_ERROR

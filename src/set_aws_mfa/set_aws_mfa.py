@@ -246,7 +246,7 @@ def prompt_user_selection(perfect_profile_list):
                 count += 1
 
 
-def ask_user_input() -> int:
+def ask_user_input() -> str:
     """プロフィール番号を受け付けるため、ユーザーのインプットを待ち受ける"""
 
     return input(ASKING_USER_INPUT_MESSAGE)

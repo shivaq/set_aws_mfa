@@ -3,6 +3,7 @@
 from random import randint
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
+from set_aws_mfa.set_aws_mfa import ProfileNumInput
 
 
 def test_get_profile_instance_for_user_input(perfect_profile_list):
@@ -26,6 +27,17 @@ def test_prompt_displays_selected_profile_and_asks_for_mfa_input(capsys, perfect
     out, err = capsys.readouterr()
 
     assert perfect_profile.name in out.rstrip()
+
+
+def test_return_user_input_num(monkeypatch, perfect_profile_list):
+
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr('builtins.input', lambda _: "3")
+
+    # WHEN: validate with this function
+    user_input = set_aws_mfa.ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
+    # THEN: the returned value is int
+    assert type(user_input) is int
 
 
 def test_get_sts_client(perfect_profile_list):
@@ -73,22 +85,3 @@ def test_get_mfa_arn(perfect_profile_list):
 # チェック：認証が成功した場合のトークンを表示する
 # トークンを使ってAWSリソースにアクセスできる状態にする
 # テスト：上記状態になっているかどうか
-
-
-
-# Config
-# [profile yasuaki_shibata]
-# region = ap-northeast-1
-# [profile yasuaki_mac]
-# region = ap-northeast-1
-# [profile serverless_framework]
-# region = ap-northeast-1
-# [profile sls_admin_role]
-# region = ap-northeast-1
-#     role_arn = arn: aws: iam: : 750747051508: role/ServerlessFramework_admin
-#     source_profile = serverless_framework
-# [default]
-# region = j
-# output = j
-# [profile unko]
-# region = us-west-1

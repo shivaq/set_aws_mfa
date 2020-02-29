@@ -48,3 +48,73 @@ def test_prompt_displays_profile_name(capsys, perfect_profile_list):
         if p.aws_secret_access_key is not None:
             # ") profile_name" is included in stdout
             assert ") " + p.name in out.strip()
+
+
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成を促すプロンプトを表示する
+def test_no_aws_accounts_for_set_aws_mfa_prompts_permission_to_create_the_file():
+    # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
+    # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # THEN: Ask input to permit creating ~/.aws_accounts_for_set_aws_mfa
+    assert "a" is "a"
+
+
+# TODO: ~/.aws_accounts_for_set_aws_mfa の作成に成功する
+def test_new_file_is_created_in_local_path():
+    # GIVEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA is failed
+    # WHEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # THEN: fake AWS_ACCOUNT_FOR_SET_AWS_MFA existence is confirmed
+    # THEN: remove fake AWS_ACCOUNT_FOR_SET_AWS_MFA with fixture
+    assert "a" is "a"
+
+
+# TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
+def test_user_input_is_int():
+    # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # WHEN: check the existence of info for the given profile
+    # THEN: Prompt message to ask for input aws account id for the profile
+    assert "a" is "a"
+
+
+# TODO: ~/.aws_accounts_for_set_aws_mfa に テスト ユーザー入力の AWSアカウントIDを 記入する
+def test_writing_aws_account_to_the_file():
+    # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # WHEN: check the existence of info for the given profile
+    # THEN: Prompt message to ask for input aws account id for the profile
+    assert "a" is "a"
+
+
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
+def test_get_aws_account_id_for_the_profile(perfect_profile_list):
+
+    # GIVEN: a ProfileTuple
+    profile = perfect_profile_list[0]
+
+    # WHEN: call the function
+    aws_account_id = set_aws_mfa.get_aws_account_id(profile)
+
+    # THEN:
+    assert type(aws_account_id) == int
+
+
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める
+def test_no_aws_account_id_for_given_profile_prompts_msg():
+    # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # WHEN: check the existence of info for the given profile
+    # THEN: Prompt message to ask for input aws account id for the profile
+    assert "a" is "a"
+
+
+# TODO: テスト該当プロファイルのMFA ARN を取得する
+def test_get_mfa_arn(perfect_profile_list):
+
+    # GIVEN: a ProfileTuple
+    profile = perfect_profile_list[0]
+
+    # WHEN: call the function
+    mfa_arn = set_aws_mfa.get_mfa_arn(profile)
+
+    # THEN:
+    assert profile.name in mfa_arn

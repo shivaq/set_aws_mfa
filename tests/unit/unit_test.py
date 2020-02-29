@@ -52,37 +52,6 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成を促すプロンプトを表示する
-
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める
-
-# TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
-
-
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
-def test_get_aws_account_id_for_the_profile(perfect_profile_list):
-
-    # GIVEN: a ProfileTuple
-    profile = perfect_profile_list[0]
-
-    # WHEN: call the function
-    aws_account_id = set_aws_mfa.get_aws_account_id(profile)
-
-    # THEN:
-    assert type(aws_account_id) == int
-
-
-# TODO: テスト該当プロファイルのMFA ARN を取得する
-def test_get_mfa_arn(perfect_profile_list):
-
-    # GIVEN: a ProfileTuple
-    profile = perfect_profile_list[0]
-
-    # WHEN: call the function
-    mfa_arn = set_aws_mfa.get_mfa_arn(profile)
-
-    # THEN:
-    assert profile.name in mfa_arn
 
 
 # TODO: 受け取ったトークンで認証を試みる

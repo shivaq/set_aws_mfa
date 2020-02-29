@@ -48,6 +48,7 @@ PROMPT_NOT_AN_VALID_INT_BEFORE = "0から"
 PROMPT_NOT_AN_VALID_INT_AFTER = "の数値を入力してください"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAトークンを入力してください。"
+AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 
 # Get ini config parser
 Config = configparser.ConfigParser()

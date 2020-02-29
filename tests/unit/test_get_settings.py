@@ -2,6 +2,14 @@
 # -*- coding: utf-8 -*-
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
+import pytest
+
+
+@pytest.fixture
+def set_fake_files():
+    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.fake/aws_accounts_for_set_aws_mfa"
+    yield
+    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 
 
 # 1. role の profile を取得する
@@ -51,7 +59,7 @@ def test_prompt_displays_profile_name(capsys, perfect_profile_list):
 
 
 # TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成を促すプロンプトを表示する
-def test_no_aws_accounts_for_set_aws_mfa_prompts_permission_to_create_the_file():
+def test_no_aws_accounts_for_set_aws_mfa_prompts_permission_to_create_the_file(set_fake_files):
     # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
     # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
     # THEN: Ask input to permit creating ~/.aws_accounts_for_set_aws_mfa

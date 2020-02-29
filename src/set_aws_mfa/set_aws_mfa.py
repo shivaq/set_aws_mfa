@@ -8,6 +8,8 @@ import configparser
 from typing import NamedTuple
 import boto3
 
+from helper import helper
+
 LOG_FILE_NAME = "set_aws_mfa.log"
 
 ##################
@@ -95,12 +97,6 @@ class ProfileNumInput:
 ################################
 
 
-def is_this_file_exists_in_local(local_file_path: str) -> bool:
-    """ローカルファイルが存在しているか否かを返す"""
-    filename = os.path.expanduser(local_file_path)
-    return os.path.exists(filename)
-
-
 def prepare_to_read_local_ini_file(abs_file_path):
     """
     Read an ini file to read data from it with configparser
@@ -116,7 +112,7 @@ def check_aws_config_existence():
     """
     Check if ~/.aws/config exists
     """
-    if not is_this_file_exists_in_local(AWS_CONFIG):
+    if not helper.is_this_file_exists_in_local(AWS_CONFIG):
         raise FileNotFoundError(NO_AWS_CONFIG_ERROR)
 
 
@@ -124,7 +120,7 @@ def check_aws_credentials_existence():
     """
     Check if ~/.aws/credentials exists
     """
-    if not is_this_file_exists_in_local(AWS_CREDENTIALS):
+    if not helper.is_this_file_exists_in_local(AWS_CREDENTIALS):
         raise FileNotFoundError(NO_AWS_CREDENTIALS_ERROR)
 
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 from set_aws_mfa import set_aws_mfa
-import unittest.mock as mock
+from helper import helper
 import pytest
 
 
@@ -20,7 +20,7 @@ def test_aws_config_exists():
     # GIVEN: the path of target file
     # WHEN: get the path in local pc
     # THEN: the file exists
-    assert set_aws_mfa.is_this_file_exists_in_local(set_aws_mfa.AWS_CONFIG)
+    assert helper.is_this_file_exists_in_local(set_aws_mfa.AWS_CONFIG)
 
 
 # 1. ~/.aws/credentials が存在していること
@@ -28,7 +28,7 @@ def test_aws_credentials_exists():
     # GIVEN: the path of target file
     # WHEN: get the path in local pc
     # THEN: the file exists
-    assert set_aws_mfa.is_this_file_exists_in_local(set_aws_mfa.AWS_CREDENTIALS)
+    assert helper.is_this_file_exists_in_local(set_aws_mfa.AWS_CREDENTIALS)
 
 
 # 1.  ~/.aws/config の内容を取得する

@@ -3,6 +3,7 @@
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
 import pytest
+from helper import helper
 
 
 @pytest.fixture
@@ -58,12 +59,14 @@ def test_prompt_displays_profile_name(capsys, perfect_profile_list):
             assert ") " + p.name in out.strip()
 
 
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成を促すプロンプトを表示する
-def test_no_aws_accounts_for_set_aws_mfa_prompts_permission_to_create_the_file(set_fake_files):
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、False を返す
+def test_no_aws_accounts_for_set_aws_mfa_returns_false(set_fake_files):
     # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
     # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
-    # THEN: Ask input to permit creating ~/.aws_accounts_for_set_aws_mfa
-    assert "a" is "a"
+    is_the_file_exists = set_aws_mfa.check_aws_accounts_for_set_aws_mfa_existence()
+
+    # THEN: The file is not exist
+    assert not is_the_file_exists
 
 
 # TODO: ~/.aws_accounts_for_set_aws_mfa の作成に成功する

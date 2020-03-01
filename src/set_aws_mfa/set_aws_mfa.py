@@ -289,6 +289,13 @@ def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple
     return perfect_profile_list[validated_input - 1]
 
 
+def check_aws_accounts_for_set_aws_mfa_existence():
+    """
+    Check if ~/.aws_accounts_for_set_aws_mfa exists
+    """
+    return helper.is_this_file_exists_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+
+
 def prompt_for_asking_mfa_code(perfect_profile):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)

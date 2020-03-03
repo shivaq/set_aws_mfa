@@ -3,14 +3,26 @@
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
 import pytest
+import os
 from helper import helper
+
+FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/fake_aws_accounts_for_set_aws_mfa"
+CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 
 
 @pytest.fixture
-def set_fake_files():
-    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.fake/aws_accounts_for_set_aws_mfa"
+def set_fake_aws_account_files():
+    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA
     yield
-    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
+    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA
+
+
+@pytest.fixture()
+def delete_fake_aws_account_files():
+    yield
+    filename = os.path.expanduser(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA)
+    if helper.is_this_file_exists_in_local(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA):
+        os.remove(filename)
 
 
 # 1. role の profile を取得する
@@ -59,14 +71,27 @@ def test_prompt_displays_profile_name(capsys, perfect_profile_list):
             assert ") " + p.name in out.strip()
 
 
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、False を返す
-def test_no_aws_accounts_for_set_aws_mfa_returns_false(set_fake_files):
+# テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、False を返す
+def test_no_aws_accounts_for_set_aws_mfa_returns_false(set_fake_aws_account_files):
     # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
     # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
     is_the_file_exists = set_aws_mfa.check_aws_accounts_for_set_aws_mfa_existence()
 
     # THEN: The file is not exist
     assert not is_the_file_exists
+
+
+# テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成する
+def test_create_aws_accounts_for_set_aws_mfa(set_fake_aws_account_files, delete_fake_aws_account_files):
+    # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
+    # WHEN: Try to create AWS_ACCOUNT_FOR_SET_AWS_MFA
+    set_aws_mfa.create_aws_account_id_file()
+
+    # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
+    is_the_file_exists = set_aws_mfa.check_aws_accounts_for_set_aws_mfa_existence()
+
+    # THEN: The file is exist
+    assert is_the_file_exists
 
 
 # TODO: ~/.aws_accounts_for_set_aws_mfa の作成に成功する

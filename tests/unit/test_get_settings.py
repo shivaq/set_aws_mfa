@@ -20,9 +20,7 @@ def set_fake_aws_account_files():
 @pytest.fixture()
 def delete_fake_aws_account_files():
     yield
-    filename = os.path.expanduser(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA)
-    if helper.is_this_file_exists_in_local(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA):
-        os.remove(filename)
+    helper.delete_a_file_if_it_exists(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
 # 1. role の profile を取得する

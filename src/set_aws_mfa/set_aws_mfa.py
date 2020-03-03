@@ -289,11 +289,18 @@ def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple
     return perfect_profile_list[validated_input - 1]
 
 
-def check_aws_accounts_for_set_aws_mfa_existence():
+def check_aws_accounts_for_set_aws_mfa_existence() -> bool:
     """
     Check if ~/.aws_accounts_for_set_aws_mfa exists
     """
     return helper.is_this_file_exists_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+
+
+def create_aws_account_id_file():
+    """
+    Create ~/.aws_accounts_for_set_aws_mfa if it is not exists
+    """
+    helper.create_a_file_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
 def prompt_for_asking_mfa_code(perfect_profile):

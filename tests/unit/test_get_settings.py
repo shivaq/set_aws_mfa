@@ -92,13 +92,17 @@ def test_create_aws_accounts_for_set_aws_mfa(set_fake_aws_account_files, delete_
     assert is_the_file_exists
 
 
-# TODO: ~/.aws_accounts_for_set_aws_mfa の作成に成功する
-def test_new_file_is_created_in_local_path():
-    # GIVEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA is failed
-    # WHEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
-    # THEN: fake AWS_ACCOUNT_FOR_SET_AWS_MFA existence is confirmed
-    # THEN: remove fake AWS_ACCOUNT_FOR_SET_AWS_MFA with fixture
-    assert "a" is "a"
+# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
+def test_get_aws_account_id_for_the_profile(perfect_profile_list):
+
+    # GIVEN: a ProfileTuple
+    profile = perfect_profile_list[0]
+
+    # WHEN: call the function
+    aws_account_id = set_aws_mfa.get_aws_account_id(profile)
+
+    # THEN:
+    assert type(aws_account_id) == int
 
 
 # TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
@@ -117,19 +121,6 @@ def test_writing_aws_account_to_the_file():
     # WHEN: check the existence of info for the given profile
     # THEN: Prompt message to ask for input aws account id for the profile
     assert "a" is "a"
-
-
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
-def test_get_aws_account_id_for_the_profile(perfect_profile_list):
-
-    # GIVEN: a ProfileTuple
-    profile = perfect_profile_list[0]
-
-    # WHEN: call the function
-    aws_account_id = set_aws_mfa.get_aws_account_id(profile)
-
-    # THEN:
-    assert type(aws_account_id) == int
 
 
 # TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める

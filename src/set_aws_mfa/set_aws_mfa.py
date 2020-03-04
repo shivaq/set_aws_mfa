@@ -303,6 +303,14 @@ def create_aws_account_id_file():
     helper.create_a_file_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
+def prepare_aws_account_id_file():
+    """
+    ~/.aws_accounts_for_set_aws_mfa の存在を確認し、なければ作成する
+    """
+    if not check_aws_accounts_for_set_aws_mfa_existence():
+        create_aws_account_id_file()
+
+
 def prompt_for_asking_mfa_code(perfect_profile):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
@@ -344,6 +352,8 @@ def main():
     validated_input = ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
     selected_profile = get_specified_profile(perfect_profile_list, validated_input)
     prompt_for_asking_mfa_code(selected_profile)
+
+    prepare_aws_account_id_file()
 
     get_sts_client(selected_profile)
 

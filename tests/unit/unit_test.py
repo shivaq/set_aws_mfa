@@ -3,7 +3,7 @@
 from random import randint
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
-from set_aws_mfa.set_aws_mfa import ProfileNumInput
+from set_aws_mfa.set_aws_mfa import IntObject
 
 
 def test_get_profile_instance_for_user_input(perfect_profile_list):
@@ -35,7 +35,7 @@ def test_return_user_input_num(monkeypatch, perfect_profile_list):
     monkeypatch.setattr('builtins.input', lambda _: "3")
 
     # WHEN: validate with this function
-    user_input = set_aws_mfa.ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
+    user_input = set_aws_mfa.ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
     # THEN: the returned value is int
     assert type(user_input) is int
 

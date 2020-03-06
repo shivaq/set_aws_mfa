@@ -126,15 +126,14 @@ def test_get_aws_account_id_for_the_profile(perfect_profile_list):
 
 
 # TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
-def test_user_input_is_int():
-    # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
-    # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
-    # WHEN: check the existence of info for the given profile
-    # THEN: Prompt message to ask for input aws account id for the profile
-    assert "a" is "a"
+# def test_user_input_is_int():
+#     # WHEN: get a user input for aws account id
+#     set_aws_mfa.ask_aws_account_id_input()
+#     # THEN: Prompt message to ask for input aws account id for the profile
+#     assert "a" is "a"
 
 
-# TODO: ~/.aws_accounts_for_set_aws_mfa に テスト ユーザー入力の AWSアカウントIDを 記入する
+# TODO: ~/.aws_accounts_for_set_aws_mfa に ユーザー入力の AWSアカウントIDを 記入する
 def test_writing_aws_account_to_the_file():
     # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
     # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA

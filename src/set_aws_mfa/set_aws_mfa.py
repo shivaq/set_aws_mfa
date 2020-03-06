@@ -53,6 +53,7 @@ PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAトークンを入力して�
 AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
+ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -85,7 +86,7 @@ class CredentialTuple(NamedTuple):
                 f'{self.name!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
 
-class ProfileNumInput:
+class IntObject:
     def __init__(self, prompt_num: int = 0):
         self.prompt_num = prompt_num
 
@@ -238,52 +239,62 @@ def prompt_user_selection(perfect_profile_list):
                 count += 1
 
 
-def ask_user_input() -> str:
-    """プロフィール番号を受け付けるため、ユーザーのインプットを待ち受ける"""
+# Validate STEP 1/4
+def ask_profile_num_input_till_its_validated(profile_num_input: IntObject, perfect_profile_list) -> int:
+    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
+    while not is_input_int_and_in_range(profile_num_input, perfect_profile_list):
+        None
+    # validate_is_input_int_and_in_range() で validate されたインプットを返す
+    return int(profile_num_input.prompt_num)
 
-    return input(ASKING_USER_INPUT_MESSAGE)
 
-
-def ask_input_integer(profile_num_input, perfect_profile_list: list) -> bool:
+# Validate STEP 2/4
+def is_input_int_and_in_range(profile_num_input, perfect_profile_list: list) -> bool:
     """
-    While loop をテストするために、ProfileNumInput クラスを介して
-    Validation と ProfileNumInput インスタンスの更新を行う
+    While loop をテストするために、NumInputForWhileLoop クラスを介して
+    Validation と NumInputForWhileLoop インスタンスの更新を行う
     """
     # メニューを表示
     prompt_user_selection(perfect_profile_list)
     # インプットを促す
-    user_input = ask_user_input()
+    user_input = get_input_for_profile_number()
+
     try:
+        # validate_is_input_int_and_in_range() に値を引き継ぐために、
+        # NumInputForWhileLoop インスタンスを使用
         profile_num_input.prompt_num = user_input
         # int に変換してエラーとなるかどうかをチェック
         int(profile_num_input.prompt_num)
-        return ask_input_in_list_range(profile_num_input, perfect_profile_list)
+        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうか✅
+        return is_input_in_profile_list_range(profile_num_input, perfect_profile_list)
     except ValueError:
-        # 誤りを指摘し、再入力を促す
+        # 誤りを指摘し、再入力を促すプロンプトを表示
         print(PROMPT_USER_INPUT_BEFORE + str(user_input) + PROMPT_USER_INPUT_AFTER)
         print(PROMPT_ENTER_AN_INT + "\n")
         return False
 
 
-def ask_input_in_list_range(profile_num_input, perfect_profile_list) -> bool:
+# Validate STEP 3/4
+def get_input_for_profile_number() -> str:
+    """プロフィール番号を受け付けるため、ユーザーのインプットを待ち受ける"""
+
+    return input(ASKING_USER_INPUT_MESSAGE)
+
+
+# Validate STEP 4/4
+def is_input_in_profile_list_range(profile_num_input, perfect_profile_list) -> bool:
     """
     While loop をテストするために、ProfileNumInput クラスを介して
     Validation と ProfileNumInput インスタンスの更新を行う
     """
 
+    # input で受け取った値が リストの範囲内かどうかチェック
     if 0 < int(profile_num_input.prompt_num) <= len(perfect_profile_list):
         return True
     else:
         print(PROMPT_USER_INPUT_BEFORE + str(profile_num_input.prompt_num) + PROMPT_USER_INPUT_AFTER)
         print(PROMPT_NOT_AN_VALID_INT_BEFORE + str(len(perfect_profile_list)) + PROMPT_NOT_AN_VALID_INT_AFTER + "\n")
         return False
-
-    
-def ask_profile_num_input(profile_num_input: ProfileNumInput, perfect_profile_list) -> int:
-    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
-    while not ask_input_integer(profile_num_input, perfect_profile_list):
-        None
-    return int(profile_num_input.prompt_num)
 
 
 def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple:
@@ -357,7 +368,7 @@ def main():
         get_credentials_obj_list())
     role_profile = get_role_profile(profile_list)
     # ユーザー入力要求
-    validated_input = ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
+    validated_input = ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
     selected_profile = get_specified_profile(perfect_profile_list, validated_input)
     prompt_for_asking_mfa_code(selected_profile)
 

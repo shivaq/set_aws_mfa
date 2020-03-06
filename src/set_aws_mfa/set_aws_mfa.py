@@ -345,6 +345,7 @@ def prompt_for_asking_mfa_code(perfect_profile):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
 
+
 #################################
 # Access AWS
 ################################

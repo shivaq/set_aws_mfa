@@ -298,7 +298,7 @@ def is_input_in_profile_list_range(profile_num_input, perfect_profile_list) -> b
 
 
 def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple:
-    """int に応じた """
+    """int に応じた profile を取得"""
     return perfect_profile_list[validated_input - 1]
 
 

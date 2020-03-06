@@ -225,7 +225,7 @@ def get_perfect_profile_list(profile_list, credentials_list) -> list:
 
 
 #################################
-# Provide Prompts
+# Asks for profile number input
 ################################
 def prompt_user_selection(perfect_profile_list):
     """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""

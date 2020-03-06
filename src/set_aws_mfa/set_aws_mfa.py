@@ -333,6 +333,42 @@ def prompt_for_asking_aws_account_id(perfect_profile):
           PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
 
 
+# Validate STEP 1/3
+def ask_aws_account_id_input_till_its_validated(int_obj: IntObject) -> int:
+    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
+    while not is_input_int_loop_for_aws_account_id(int_obj):
+        None
+    # is_input_int_loop_for_aws_account_id() で validate されたインプットを返す
+    return int(int_obj.prompt_num)
+
+
+# Validate STEP 2/3
+def is_input_int_loop_for_aws_account_id(int_obj: IntObject):
+
+    aws_account_id_input = get_aws_account_id_input()
+
+    try:
+        # ask_aws_account_id_input_till_its_validated() に値を引き継ぐために、
+        # IntObject インスタンスを使用
+        int_obj.prompt_num = aws_account_id_input
+        # int に変換してエラーとなるかどうかをチェック
+        int(int_obj.prompt_num)
+        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうか✅
+        return True
+    except ValueError:
+        # 誤りを指摘し、再入力を促すプロンプトを表示
+        print(PROMPT_USER_INPUT_BEFORE + str(aws_account_id_input) + PROMPT_USER_INPUT_AFTER)
+        print(PROMPT_ENTER_AN_INT + "\n")
+        return False
+
+
+# Validate STEP 3/3
+def get_aws_account_id_input() -> str:
+    """AWS account id の入力を受け付けるインプットを提供する"""
+
+    return input(ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
+
+
 def get_aws_account_id(perfect_profile: ProfileTuple):
     # TODO:
     return 33333333

@@ -5,6 +5,7 @@ from set_aws_mfa.set_aws_mfa import ProfileTuple
 import pytest
 import os
 from helper import helper
+from set_aws_mfa.set_aws_mfa import IntObject
 
 FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/fake_aws_accounts_for_set_aws_mfa"
 CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
@@ -125,12 +126,28 @@ def test_get_aws_account_id_for_the_profile(perfect_profile_list):
     assert type(aws_account_id) == int
 
 
-# TODO: テスト ユーザー入力の AWSアカウントIDを Validate する
-# def test_user_input_is_int():
-#     # WHEN: get a user input for aws account id
-#     set_aws_mfa.ask_aws_account_id_input()
-#     # THEN: Prompt message to ask for input aws account id for the profile
-#     assert "a" is "a"
+# テスト ユーザー入力の AWSアカウントID が int じゃない場合、False が返される
+def test_user_input_is_not_int(monkeypatch):
+    # GIVEN: ユーザーインプットが integer ではない場合、を Mock
+    user_input_not_int = "hogehoge"
+    # GIVEN: Mock user input string
+    monkeypatch.setattr('builtins.input', lambda _: user_input_not_int)
+    # WHEN: Validate the input
+    is_int = set_aws_mfa.is_input_int_loop_for_aws_account_id(IntObject())
+    # THEN: It's not an int
+    assert not is_int
+
+
+# テスト ユーザー入力の AWSアカウントID が int の場合、True が返される
+def test_user_input_is_int(monkeypatch):
+    # GIVEN: ユーザーインプットが integer ではない場合、を Mock
+    user_input_not_int = "12345"
+    # GIVEN: Mock user input string
+    monkeypatch.setattr('builtins.input', lambda _: user_input_not_int)
+    # WHEN: Validate the input
+    is_int = set_aws_mfa.is_input_int_loop_for_aws_account_id(IntObject())
+    # THEN: It's not an int
+    assert is_int
 
 
 # TODO: ~/.aws_accounts_for_set_aws_mfa に ユーザー入力の AWSアカウントIDを 記入する

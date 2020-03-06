@@ -51,6 +51,8 @@ PROMPT_NOT_AN_VALID_INT_AFTER = "の数値を入力してください"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAトークンを入力してください。"
 AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
+PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
+PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -309,6 +311,12 @@ def prepare_aws_account_id_file():
     """
     if not check_aws_accounts_for_set_aws_mfa_existence():
         create_aws_account_id_file()
+
+
+def prompt_for_asking_aws_account_id(perfect_profile):
+    """該当プロフィールのアカウントID入力を促すプロンプトを表示する"""
+    print(PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE + perfect_profile.name +
+          PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
 
 
 def prompt_for_asking_mfa_code(perfect_profile):

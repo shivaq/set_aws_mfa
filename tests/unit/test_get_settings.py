@@ -92,6 +92,26 @@ def test_create_aws_accounts_for_set_aws_mfa(set_fake_aws_account_files, delete_
     assert is_the_file_exists
 
 
+# テスト ~/.aws_accounts_for_set_aws_mfa 作成後、ユーザーに 該当ProfileのAWSアカウントID の入力を求める
+def test_when_no_aws_account_file_asks_for_user_input(set_fake_aws_account_files, delete_fake_aws_account_files,
+                                                     perfect_profile_list, capsys):
+    # GIVEN a Profile
+    profile = perfect_profile_list[0]
+    # WHEN create a new aws account file
+    if not set_aws_mfa.check_aws_accounts_for_set_aws_mfa_existence():
+        set_aws_mfa.create_aws_account_id_file()
+    else:
+        # そのファイルが既に存在していた場合、書き込みをせずに raise
+        raise
+    # THEN: ask to input aws account id for the profile
+    set_aws_mfa.prompt_for_asking_aws_account_id(profile)
+    out, err = capsys.readouterr()
+
+    assert profile.name in out.rstrip()
+    assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE in out.rstrip()
+    assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER in out.rstrip()
+
+
 # TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
 def test_get_aws_account_id_for_the_profile(perfect_profile_list):
 

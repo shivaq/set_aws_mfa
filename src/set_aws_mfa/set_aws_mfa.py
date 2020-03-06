@@ -302,6 +302,9 @@ def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple
     return perfect_profile_list[validated_input - 1]
 
 
+#################################
+# Get an aws account id for a profile
+################################
 def check_aws_accounts_for_set_aws_mfa_existence() -> bool:
     """
     Check if ~/.aws_accounts_for_set_aws_mfa exists

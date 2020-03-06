@@ -158,13 +158,22 @@ def test_user_input_is_int(monkeypatch):
     assert is_int
 
 
-# TODO: ~/.aws_accounts_for_set_aws_mfa に ユーザー入力の AWSアカウントIDを 記入する
-def test_writing_aws_account_to_the_file():
+# ~/.aws_accounts_for_set_aws_mfa に ユーザー入力の AWSアカウントIDを 記入する
+def test_writing_aws_account_to_the_file(set_fake_aws_account_files, delete_fake_aws_account_files, perfect_profile_list):
+    # GIVEN: AWS_ACCOUNT_FOR_SET_AWS_MFA is changed to fake path
     # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
-    # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    set_aws_mfa.create_aws_account_id_file()
+    # GIVEN: 対象 profile を指定する
+    profile = perfect_profile_list[0]
+    # GIVEN: 下記aws account id を取得したとする
+    aws_account_id = 12345
+    set_aws_mfa.create_aws_account_id_file()
     # WHEN: check the existence of info for the given profile
-    # THEN: Prompt message to ask for input aws account id for the profile
-    assert "a" is "a"
+    set_aws_mfa.writing_aws_account_to_the_file(profile, aws_account_id)
+    # WHEN: AWS_ACCOUNT_FOR_SET_AWS_MFA から該当 profile の aws account id を検索した場合
+    retrieved_aws_account_id = set_aws_mfa.get_aws_account_id(profile)
+    # THEN: int の aws account id が取得できている
+    assert type(retrieved_aws_account_id) is int
 
 
 # TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める

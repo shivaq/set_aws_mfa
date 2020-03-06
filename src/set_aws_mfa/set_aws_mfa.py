@@ -325,6 +325,7 @@ def prepare_aws_account_id_file():
     """
     if not check_aws_accounts_for_set_aws_mfa_existence():
         create_aws_account_id_file()
+    prepare_to_read_local_ini_file(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
 def prompt_for_asking_aws_account_id(perfect_profile):
@@ -367,6 +368,17 @@ def get_aws_account_id_input() -> str:
     """AWS account id の入力を受け付けるインプットを提供する"""
 
     return input(ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
+
+
+def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
+    """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
+
+    prepare_to_read_local_ini_file(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+    # TODO: 該当Profile のセクションを作成
+    Config[profile.name] = {"aws_account_id": aws_account_id}
+    filename = os.path.expanduser(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+    with open(filename, "w") as configfile:
+        Config.write(configfile)
 
 
 def get_aws_account_id(perfect_profile: ProfileTuple):

@@ -442,18 +442,23 @@ def main():
     # 設定の事前確認
     check_aws_config_existence()
     check_aws_credentials_existence()
+
     # 設定情報取得
     profile_list = get_profile_obj_list()
     perfect_profile_list = get_perfect_profile_list(
         profile_list,
         get_credentials_obj_list())
     role_profile = get_role_profile(profile_list)
-    # ユーザー入力要求
+
+    # profile 選択のためのユーザー入力要求
     validated_input = ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
     selected_profile = get_specified_profile(perfect_profile_list, validated_input)
-    prompt_for_asking_mfa_code(selected_profile)
 
-    prepare_aws_account_id_file()
+    # 選択した profile の mfa の arn を用意するために、aws account id を取得
+    aws_account_id = get_aws_account_id(selected_profile)
+    print(aws_account_id)
+
+    prompt_for_asking_mfa_code(selected_profile)
 
     get_sts_client(selected_profile)
 

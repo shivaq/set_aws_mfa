@@ -382,9 +382,6 @@ def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
         Config.write(configfile)
 
 
-def get_aws_account_id(perfect_profile: ProfileTuple):
-    # TODO:
-    return 33333333
 def get_aws_account_id_file_section_dict() -> collections.OrderedDict:
     """~/.aws_accounts_for_set_aws_mfa から Section 情報を取得する"""
     # ~/.aws_accounts_for_set_aws_mfa の有無を確認し、なければ生成する
@@ -393,6 +390,27 @@ def get_aws_account_id_file_section_dict() -> collections.OrderedDict:
     return Config._sections
 
 
+def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
+    """該当 profile の AWS account id を取得する"""
+    account_id_section_dict = get_aws_account_id_file_section_dict()
+    aws_account_id = 0
+
+    # 該当ファイルのセクションに、該当 profile が存在している場合
+    if perfect_profile.name in account_id_section_dict.keys():
+        for profile, values in account_id_section_dict.items():
+            if profile == perfect_profile.name:
+                # 該当profile の aws_account_id の値を取得する
+                aws_account_id = values.get("aws_account_id")
+    else:  # 該当ファイルのセクションに、該当 profile が存在しない場合
+        # aws account id の入力を要求し、
+        prompt_for_asking_aws_account_id(perfect_profile)
+        aws_account_id = ask_aws_account_id_input_till_its_validated(IntObject())
+        # 該当ファイルに書き込む
+        writing_aws_account_to_the_file(perfect_profile, aws_account_id)
+        # 再帰的に本関数を呼び出して、書き込み済みの aws account id を取得する
+        get_aws_account_id(perfect_profile)
+
+    return int(aws_account_id)
 
 
 #################################

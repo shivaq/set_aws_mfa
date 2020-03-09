@@ -30,6 +30,7 @@ def delete_fake_aws_account_files():
 def create_fake_aws_account_files():
     set_aws_mfa.create_aws_account_id_file()
 
+
 ########################
 # Get profiles
 ########################
@@ -125,7 +126,7 @@ def test_when_no_aws_account_file_asks_for_user_input(set_fake_aws_account_files
     assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER in out.rstrip()
 
 
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
+# ~/.aws_accounts_for_set_aws_mfa から該当ProfileのAWSアカウントIDを取得する
 def test_get_aws_account_id_for_the_profile(perfect_profile_list):
 
     # GIVEN: a ProfileTuple
@@ -180,13 +181,30 @@ def test_writing_aws_account_to_the_file(set_fake_aws_account_files, delete_fake
     assert type(retrieved_aws_account_id) is int
 
 
-# TODO: テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める
-def test_no_aws_account_id_for_given_profile_prompts_msg():
+# テスト ~/.aws_accounts_for_set_aws_mfa はするが、該当ProfileのAWSアカウントIDが存在しない場合にユーザーに入力を求める
+def test_no_aws_account_id_for_given_profile_prompts_msg(set_fake_aws_account_files,
+                                                         perfect_profile_list, create_fake_aws_account_files,
+                                                         delete_fake_aws_account_files,
+                                                         capsys, monkeypatch):
     # GIVEN: Create fake AWS_ACCOUNT_FOR_SET_AWS_MFA
     # GIVEN: No info for profile exists in fake AWS_ACCOUNT_FOR_SET_AWS_MFA
+    # GIVEN: 対象 profile を指定する
+    profile = perfect_profile_list[0]
+    # GIVEN: ユーザーインプットが integer ではない場合、を Mock
+    aws_account_id_int = "12345"
+    # GIVEN: Mock user input string
+    monkeypatch.setattr('builtins.input', lambda _: aws_account_id_int)
+
     # WHEN: check the existence of info for the given profile
+    set_aws_mfa.get_aws_account_id(profile)
     # THEN: Prompt message to ask for input aws account id for the profile
-    assert "a" is "a"
+    out, err = capsys.readouterr()
+
+    print(out.rstrip())
+
+    assert profile.name in out.rstrip()
+    assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE in out.rstrip()
+    assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER in out.rstrip()
 
 
 # TODO: テスト該当プロファイルのMFA ARN を取得する

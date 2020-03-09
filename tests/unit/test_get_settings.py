@@ -26,6 +26,10 @@ def delete_fake_aws_account_files():
     helper.delete_a_file_if_it_exists(FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
+@pytest.fixture()
+def create_fake_aws_account_files():
+    set_aws_mfa.create_aws_account_id_file()
+
 ########################
 # Get profiles
 ########################

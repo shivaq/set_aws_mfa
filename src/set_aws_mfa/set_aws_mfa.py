@@ -33,7 +33,6 @@ logger.addHandler(ch)
 logger.addHandler(rfh)
 logger.propagate = False
 
-
 ##################
 # Constants
 ##################
@@ -54,6 +53,8 @@ AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
 ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
+AWS_IAM_ARN_HEAD_PART = "arn:aws:iam::"
+AWS_IAM_ARN_MFA_PART = ":mfa/"
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -70,7 +71,6 @@ class ProfileTuple(NamedTuple):
     aws_secret_access_key: str = None
 
     def __repr__(self) -> str:
-
         return (f'{self.__class__.__name__}('
                 f'{self.name!r}, {self.region!r}, {self.role_arn!r}, {self.source_profile!r}, {self.is_default!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
@@ -81,7 +81,6 @@ class CredentialTuple(NamedTuple):
     aws_secret_access_key: str = None
 
     def __repr__(self) -> str:
-
         return (f'{self.__class__.__name__}('
                 f'{self.name!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
@@ -91,9 +90,9 @@ class IntObject:
         self.prompt_num = prompt_num
 
     def __repr__(self) -> str:
-
         return (f'{self.__class__.__name__}('
                 f'{self.prompt_num!r})')
+
 
 #################################
 # Retrieve Settings
@@ -344,7 +343,7 @@ def ask_aws_account_id_input_till_its_validated(int_obj: IntObject) -> int:
 
 
 # Validate STEP 2/3
-def is_input_int_loop_for_aws_account_id(int_obj: IntObject):
+def is_input_int_loop_for_aws_account_id(int_obj: IntObject) -> bool:
     """aws account id 用のユーザーインプットが integer であるかどうかを validate"""
 
     aws_account_id_input = get_aws_account_id_input()
@@ -424,9 +423,11 @@ def prompt_for_asking_mfa_code(perfect_profile):
 #################################
 # Access AWS
 ################################
-def get_mfa_arn(perfect_profile: ProfileTuple):
-    # TODO:
-    return perfect_profile.name
+def get_mfa_arn(perfect_profile: ProfileTuple) -> str:
+    """mfa arn を返す"""
+
+    return AWS_IAM_ARN_HEAD_PART + str(
+        get_aws_account_id(perfect_profile)) + AWS_IAM_ARN_MFA_PART + perfect_profile.name
 
 
 def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
@@ -438,7 +439,6 @@ def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
 # Orchestrate functions
 ################################
 def main():
-
     # 設定の事前確認
     check_aws_config_existence()
     check_aws_credentials_existence()
@@ -455,8 +455,7 @@ def main():
     selected_profile = get_specified_profile(perfect_profile_list, validated_input)
 
     # 選択した profile の mfa の arn を用意するために、aws account id を取得
-    aws_account_id = get_aws_account_id(selected_profile)
-    print(aws_account_id)
+    mfa_arn = get_mfa_arn(selected_profile)
 
     prompt_for_asking_mfa_code(selected_profile)
 
@@ -465,4 +464,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

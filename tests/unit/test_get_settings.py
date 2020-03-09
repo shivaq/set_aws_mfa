@@ -207,7 +207,7 @@ def test_no_aws_account_id_for_given_profile_prompts_msg(set_fake_aws_account_fi
     assert set_aws_mfa.PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER in out.rstrip()
 
 
-# TODO: テスト該当プロファイルのMFA ARN を取得する
+# テスト該当プロファイルのMFA ARN を取得する
 def test_get_mfa_arn(perfect_profile_list):
 
     # GIVEN: a ProfileTuple
@@ -217,4 +217,6 @@ def test_get_mfa_arn(perfect_profile_list):
     mfa_arn = set_aws_mfa.get_mfa_arn(profile)
 
     # THEN:
+    assert set_aws_mfa.AWS_IAM_ARN_HEAD_PART
+    assert set_aws_mfa.AWS_IAM_ARN_MFA_PART
     assert profile.name in mfa_arn

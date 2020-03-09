@@ -385,6 +385,14 @@ def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
 def get_aws_account_id(perfect_profile: ProfileTuple):
     # TODO:
     return 33333333
+def get_aws_account_id_file_section_dict() -> collections.OrderedDict:
+    """~/.aws_accounts_for_set_aws_mfa から Section 情報を取得する"""
+    # ~/.aws_accounts_for_set_aws_mfa の有無を確認し、なければ生成する
+    prepare_aws_account_id_file()
+    # 該当 ini ファイルのセクション dictionary を取得
+    return Config._sections
+
+
 
 
 #################################

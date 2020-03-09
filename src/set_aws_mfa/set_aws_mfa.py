@@ -345,6 +345,7 @@ def ask_aws_account_id_input_till_its_validated(int_obj: IntObject) -> int:
 
 # Validate STEP 2/3
 def is_input_int_loop_for_aws_account_id(int_obj: IntObject):
+    """aws account id 用のユーザーインプットが integer であるかどうかを validate"""
 
     aws_account_id_input = get_aws_account_id_input()
 

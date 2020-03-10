@@ -47,13 +47,15 @@ ASKING_USER_INPUT_MESSAGE = "Profile No. : "
 PROMPT_NOT_AN_VALID_INT_BEFORE = "0から"
 PROMPT_NOT_AN_VALID_INT_AFTER = "の数値を入力してください"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
-PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAトークンを入力してください。"
+PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAコードを入力してください。"
 AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
 ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
 AWS_IAM_ARN_HEAD_PART = "arn:aws:iam::"
 AWS_IAM_ARN_MFA_PART = ":mfa/"
+ASKING_MFA_CODE_BEFORE = "MFA code for "
+ASKING_MFA_CODE_AFTER = ": "
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -359,9 +361,17 @@ def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
 #################################
 # Ask MFA code
 ################################
-def prompt_for_asking_mfa_code(perfect_profile):
+def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
+
+
+def get_mfa_code(perfect_profile: ProfileTuple):
+
+    prompt_for_asking_mfa_code(perfect_profile)
+    return helper.ask_int_input_till_its_validated(
+        IntObject(), ASKING_MFA_CODE_BEFORE + perfect_profile.name + ASKING_MFA_CODE_AFTER
+    )
 
 
 #################################
@@ -406,7 +416,7 @@ def main():
     # 選択した profile の mfa の arn を用意するために、aws account id を取得
     mfa_arn = get_mfa_arn(selected_profile)
 
-    prompt_for_asking_mfa_code(selected_profile)
+    mfa_code = get_mfa_code(selected_profile)
 
     get_sts_client(selected_profile)
 

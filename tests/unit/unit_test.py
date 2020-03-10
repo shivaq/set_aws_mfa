@@ -52,6 +52,18 @@ def test_return_user_input_num(monkeypatch, perfect_profile_list):
     assert type(user_input) is int
 
 
+def test_get_mfa_code(perfect_profile_list, monkeypatch):
+
+    # GIVEN: a profile
+    profile = perfect_profile_list[0]
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr('builtins.input', lambda _: "3334444")
+    # WHEN: input mfa code
+    mfa_code = set_aws_mfa.get_mfa_code(profile)
+    # THEN: the returned value is an int
+    assert type(mfa_code) is int
+
+
 def test_get_sts_client(perfect_profile_list):
 
     # GIVEN: a ProfileTuple

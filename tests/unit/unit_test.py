@@ -6,6 +6,18 @@ from set_aws_mfa.set_aws_mfa import ProfileTuple
 from set_aws_mfa.set_aws_mfa import IntObject
 
 
+def test_classes_magic_methods():
+    temp_name = "Suzuki"
+    temp_region = "eu-central-1"
+    temp_profile = ProfileTuple(temp_name, temp_region).__repr__()
+    assert temp_name in temp_profile
+    assert temp_region in temp_profile
+    temp_cred = set_aws_mfa.CredentialTuple(temp_name).__repr__()
+    assert temp_name in temp_cred
+    temp_int = set_aws_mfa.IntObject(9).__repr__()
+    assert "9" in temp_int
+
+
 def test_get_profile_instance_for_user_input(perfect_profile_list):
 
     # GIVEN: validated input num

@@ -279,9 +279,16 @@ def is_input_in_profile_list_range(int_obj: IntObject, perfect_profile_list: lis
         return False
 
 
-def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple:
+def get_specified_profile(perfect_profile_list: list, validated_input: int) -> ProfileTuple:
     """int に応じた profile を取得"""
     return perfect_profile_list[validated_input - 1]
+
+
+def get_selected_profile():
+    profile_list = get_profile_obj_list()
+    perfect_profile_list = get_perfect_profile_list(profile_list, get_credentials_obj_list())
+    validated_input = ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
+    return get_specified_profile(perfect_profile_list, validated_input)
 
 
 #################################
@@ -404,14 +411,10 @@ def main():
 
     # 設定情報取得
     profile_list = get_profile_obj_list()
-    perfect_profile_list = get_perfect_profile_list(
-        profile_list,
-        get_credentials_obj_list())
     role_profile = get_role_profile(profile_list)
 
     # profile 選択のためのユーザー入力要求
-    validated_input = ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
-    selected_profile = get_specified_profile(perfect_profile_list, validated_input)
+    selected_profile = get_selected_profile()
 
     # 選択した profile の mfa の arn を用意するために、aws account id を取得
     mfa_arn = get_mfa_arn(selected_profile)

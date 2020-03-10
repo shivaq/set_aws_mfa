@@ -80,6 +80,17 @@ def test_prompt_displays_profile_name(capsys, perfect_profile_list):
             assert ") " + p.name in out.strip()
 
 
+def test_get_selected_profile(perfect_profile_list, monkeypatch):
+    # GIVEN: perfect profile list
+    # GIVEN: Mock user input
+    user_input = 2
+    monkeypatch.setattr('builtins.input', lambda _: user_input)
+    # WHEN: this function is called
+    profile = set_aws_mfa.get_selected_profile()
+
+    assert profile == perfect_profile_list[user_input - 1]
+
+
 ########################
 # Get aws account info
 ########################

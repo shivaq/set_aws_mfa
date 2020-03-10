@@ -7,6 +7,7 @@ import os
 import configparser
 from typing import NamedTuple
 import boto3
+from botocore.client import ClientError
 
 from helper import helper
 
@@ -431,7 +432,12 @@ def get_mfa_arn(perfect_profile: ProfileTuple) -> str:
 
 
 def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
-    session = boto3.session.Session(profile_name=perfect_profile.name)
+    session = None
+    try:
+        session = boto3.session.Session(profile_name=perfect_profile.name)
+    except ClientError:
+        logger.exception("Failed to get session.")
+
     return session.client('sts')
 
 

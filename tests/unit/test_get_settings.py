@@ -146,7 +146,7 @@ def test_user_input_is_not_int(monkeypatch):
     # GIVEN: Mock user input string
     monkeypatch.setattr('builtins.input', lambda _: user_input_not_int)
     # WHEN: Validate the input
-    is_int = set_aws_mfa.is_input_int_loop_for_aws_account_id(IntObject())
+    is_int = helper.is_input_int_loop(IntObject(), set_aws_mfa.ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
     # THEN: It's not an int
     assert not is_int
 
@@ -158,7 +158,7 @@ def test_user_input_is_int(monkeypatch):
     # GIVEN: Mock user input string
     monkeypatch.setattr('builtins.input', lambda _: user_input_not_int)
     # WHEN: Validate the input
-    is_int = set_aws_mfa.is_input_int_loop_for_aws_account_id(IntObject())
+    is_int = helper.is_input_int_loop(IntObject(), set_aws_mfa.ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
     # THEN: It's not an int
     assert is_int
 

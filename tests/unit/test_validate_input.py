@@ -15,7 +15,7 @@ def test_user_input_num_ok_validation(perfect_profile_list, monkeypatch):
 
     # WHEN: Validate the number
     is_that_int = set_aws_mfa.is_input_int_and_in_range(
-        IntObject(), perfect_profile_list)
+        IntObject(), perfect_profile_list, set_aws_mfa.ASKING_USER_INPUT_MESSAGE)
 
     # THEN: the returned value is True
     assert is_that_int
@@ -31,7 +31,7 @@ def test_user_input_num_not_ok_validation(perfect_profile_list, monkeypatch):
 
     # WHEN: Validate the input
     is_int = set_aws_mfa.is_input_int_and_in_range(
-        IntObject(), perfect_profile_list)
+        IntObject(), perfect_profile_list, set_aws_mfa.ASKING_USER_INPUT_MESSAGE)
     # THEN: It's not an int
     assert not is_int
 

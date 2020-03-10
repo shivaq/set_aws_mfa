@@ -10,6 +10,7 @@ import boto3
 from botocore.client import ClientError
 
 from helper import helper
+from helper.helper import IntObject
 
 LOG_FILE_NAME = "set_aws_mfa.log"
 
@@ -43,9 +44,6 @@ AWS_CREDENTIALS = "~/.aws/credentials"
 NO_AWS_CREDENTIALS_ERROR = "There is no '~/.aws/credentials'. You need to set with `aws configure` command."
 MSG_ASK_SELECT_PROFILE = "Input a number for an aws login user."
 ASKING_USER_INPUT_MESSAGE = "Profile No. : "
-PROMPT_USER_INPUT_BEFORE = "\nあなたが入力したのは"
-PROMPT_USER_INPUT_AFTER = "です"
-PROMPT_ENTER_AN_INT = "数値を入力してください"
 PROMPT_NOT_AN_VALID_INT_BEFORE = "0から"
 PROMPT_NOT_AN_VALID_INT_AFTER = "の数値を入力してください"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
@@ -86,20 +84,9 @@ class CredentialTuple(NamedTuple):
                 f'{self.name!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
 
-class IntObject:
-    def __init__(self, prompt_num: int = 0):
-        self.prompt_num = prompt_num
-
-    def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}('
-                f'{self.prompt_num!r})')
-
-
 #################################
 # Retrieve Settings
 ################################
-
-
 def prepare_to_read_local_ini_file(abs_file_path):
     """
     Read an ini file to read data from it with configparser
@@ -239,60 +226,53 @@ def prompt_user_selection(perfect_profile_list):
                 count += 1
 
 
-# Validate STEP 1/4
-def ask_profile_num_input_till_its_validated(profile_num_input: IntObject, perfect_profile_list) -> int:
+# Validate STEP 1/3
+def ask_profile_num_input_till_its_validated(int_obj: IntObject, perfect_profile_list) -> int:
     """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
-    while not is_input_int_and_in_range(profile_num_input, perfect_profile_list):
+    while not is_input_int_and_in_range(int_obj, perfect_profile_list, ASKING_USER_INPUT_MESSAGE):
         None
     # validate_is_input_int_and_in_range() で validate されたインプットを返す
-    return int(profile_num_input.prompt_num)
+    return int(int_obj.prompt_num)
 
 
-# Validate STEP 2/4
-def is_input_int_and_in_range(profile_num_input, perfect_profile_list: list) -> bool:
+# Validate STEP 2/3
+def is_input_int_and_in_range(int_obj: IntObject, _list: list, message: str) -> bool:
     """
     While loop をテストするために、NumInputForWhileLoop クラスを介して
     Validation と NumInputForWhileLoop インスタンスの更新を行う
     """
     # メニューを表示
-    prompt_user_selection(perfect_profile_list)
+    prompt_user_selection(_list)
     # インプットを促す
-    user_input = get_input_for_profile_number()
+    user_input = helper.get_input(message)
 
     try:
         # validate_is_input_int_and_in_range() に値を引き継ぐために、
         # NumInputForWhileLoop インスタンスを使用
-        profile_num_input.prompt_num = user_input
+        int_obj.prompt_num = user_input
         # int に変換してエラーとなるかどうかをチェック
-        int(profile_num_input.prompt_num)
+        int(int_obj.prompt_num)
         # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうか✅
-        return is_input_in_profile_list_range(profile_num_input, perfect_profile_list)
+        return is_input_in_profile_list_range(int_obj, _list)
     except ValueError:
         # 誤りを指摘し、再入力を促すプロンプトを表示
-        print(PROMPT_USER_INPUT_BEFORE + str(user_input) + PROMPT_USER_INPUT_AFTER)
-        print(PROMPT_ENTER_AN_INT + "\n")
+        print(helper.PROMPT_USER_INPUT_BEFORE + str(user_input) + helper.PROMPT_USER_INPUT_AFTER)
+        print(helper.PROMPT_ENTER_AN_INT + "\n")
         return False
 
 
-# Validate STEP 3/4
-def get_input_for_profile_number() -> str:
-    """プロフィール番号を受け付けるため、ユーザーのインプットを待ち受ける"""
-
-    return input(ASKING_USER_INPUT_MESSAGE)
-
-
-# Validate STEP 4/4
-def is_input_in_profile_list_range(profile_num_input, perfect_profile_list) -> bool:
+# Validate STEP 3/3
+def is_input_in_profile_list_range(int_obj: IntObject, perfect_profile_list: list) -> bool:
     """
     While loop をテストするために、ProfileNumInput クラスを介して
     Validation と ProfileNumInput インスタンスの更新を行う
     """
 
     # input で受け取った値が リストの範囲内かどうかチェック
-    if 0 < int(profile_num_input.prompt_num) <= len(perfect_profile_list):
+    if 0 < int(int_obj.prompt_num) <= len(perfect_profile_list):
         return True
     else:
-        print(PROMPT_USER_INPUT_BEFORE + str(profile_num_input.prompt_num) + PROMPT_USER_INPUT_AFTER)
+        print(helper.PROMPT_USER_INPUT_BEFORE + str(int_obj.prompt_num) + helper.PROMPT_USER_INPUT_AFTER)
         print(PROMPT_NOT_AN_VALID_INT_BEFORE + str(len(perfect_profile_list)) + PROMPT_NOT_AN_VALID_INT_AFTER + "\n")
         return False
 
@@ -334,43 +314,6 @@ def prompt_for_asking_aws_account_id(perfect_profile):
           PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
 
 
-# Validate STEP 1/3
-def ask_aws_account_id_input_till_its_validated(int_obj: IntObject) -> int:
-    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
-    while not is_input_int_loop_for_aws_account_id(int_obj):
-        None
-    # is_input_int_loop_for_aws_account_id() で validate されたインプットを返す
-    return int(int_obj.prompt_num)
-
-
-# Validate STEP 2/3
-def is_input_int_loop_for_aws_account_id(int_obj: IntObject) -> bool:
-    """aws account id 用のユーザーインプットが integer であるかどうかを validate"""
-
-    aws_account_id_input = get_aws_account_id_input()
-
-    try:
-        # ask_aws_account_id_input_till_its_validated() に値を引き継ぐために、
-        # IntObject インスタンスを使用
-        int_obj.prompt_num = aws_account_id_input
-        # int に変換してエラーとなるかどうかをチェック
-        int(int_obj.prompt_num)
-        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうか✅
-        return True
-    except ValueError:
-        # 誤りを指摘し、再入力を促すプロンプトを表示
-        print(PROMPT_USER_INPUT_BEFORE + str(aws_account_id_input) + PROMPT_USER_INPUT_AFTER)
-        print(PROMPT_ENTER_AN_INT + "\n")
-        return False
-
-
-# Validate STEP 3/3
-def get_aws_account_id_input() -> str:
-    """AWS account id の入力を受け付けるインプットを提供する"""
-
-    return input(ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
-
-
 def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
     """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
 
@@ -404,7 +347,7 @@ def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
     else:  # 該当ファイルのセクションに、該当 profile が存在しない場合
         # aws account id の入力を要求し、
         prompt_for_asking_aws_account_id(perfect_profile)
-        aws_account_id = ask_aws_account_id_input_till_its_validated(IntObject())
+        aws_account_id = helper.ask_int_input_till_its_validated(IntObject(), ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
         # 該当ファイルに書き込む
         writing_aws_account_to_the_file(perfect_profile, aws_account_id)
         # 再帰的に本関数を呼び出して、書き込み済みの aws account id を取得する

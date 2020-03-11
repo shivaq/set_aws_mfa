@@ -392,6 +392,7 @@ def get_mfa_arn(perfect_profile: ProfileTuple) -> str:
 
 
 def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
+    """sts の client を取得する"""
     session = None
     try:
         session = boto3.session.Session(profile_name=perfect_profile.name)
@@ -399,6 +400,21 @@ def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
         logger.exception("Failed to get session.")
 
     return session.client('sts')
+
+
+def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: str):
+    """session token を取得する"""
+    token_info = None
+    try:
+        token_info = sts_client.get_session_token(
+            DurationSeconds=43200,  # 12 hours
+            SerialNumber=mfa_arn,
+            TokenCode=mfa_code
+        )
+
+    except ClientError:
+        logger.exception("This msg is not displayed.")
+    return token_info
 
 
 #################################
@@ -421,7 +437,9 @@ def main():
 
     mfa_code = get_mfa_code(selected_profile)
 
-    get_sts_client(selected_profile)
+    sts_client = get_sts_client(selected_profile)
+
+    token_info = get_token_info(sts_client, mfa_arn, str(mfa_code))
 
 
 if __name__ == "__main__":

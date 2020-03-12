@@ -4,6 +4,40 @@ from random import randint
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
 from set_aws_mfa.set_aws_mfa import IntObject
+import pytest
+
+
+########################
+# fixtures
+########################
+@pytest.fixture()
+def get_valid_mfa_arn(monkeypatch, valid_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return valid_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
+
+
+@pytest.fixture()
+def get_short_mfa_arn(monkeypatch, short_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return short_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
+
+
+@pytest.fixture()
+def get_string_mfa_arn(monkeypatch, string_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return string_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
 
 
 def test_classes_magic_methods():

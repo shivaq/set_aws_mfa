@@ -40,6 +40,11 @@ def get_string_mfa_arn(monkeypatch, string_aws_account_id, perfect_profile):
     return set_aws_mfa.get_mfa_arn(perfect_profile)
 
 
+@pytest.fixture()
+def get_sts_client(perfect_profile):
+    return set_aws_mfa.get_sts_client(perfect_profile)
+
+
 def test_classes_magic_methods():
     temp_name = "Suzuki"
     temp_region = "eu-central-1"

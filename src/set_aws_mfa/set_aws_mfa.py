@@ -7,8 +7,10 @@ import os
 import configparser
 from typing import NamedTuple
 import boto3
+from botocore.exceptions import ClientError, ParamValidationError
 
 from helper import helper
+from helper.helper import IntObject
 
 LOG_FILE_NAME = "set_aws_mfa.log"
 
@@ -33,7 +35,6 @@ logger.addHandler(ch)
 logger.addHandler(rfh)
 logger.propagate = False
 
-
 ##################
 # Constants
 ##################
@@ -43,14 +44,21 @@ AWS_CREDENTIALS = "~/.aws/credentials"
 NO_AWS_CREDENTIALS_ERROR = "There is no '~/.aws/credentials'. You need to set with `aws configure` command."
 MSG_ASK_SELECT_PROFILE = "Input a number for an aws login user."
 ASKING_USER_INPUT_MESSAGE = "Profile No. : "
-PROMPT_USER_INPUT_BEFORE = "\nあなたが入力したのは"
-PROMPT_USER_INPUT_AFTER = "です"
-PROMPT_ENTER_AN_INT = "数値を入力してください"
 PROMPT_NOT_AN_VALID_INT_BEFORE = "0から"
 PROMPT_NOT_AN_VALID_INT_AFTER = "の数値を入力してください"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
-PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAトークンを入力してください。"
+PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAコードを入力してください。"
 AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
+PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
+PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
+ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
+AWS_IAM_ARN_HEAD_PART = "arn:aws:iam::"
+AWS_IAM_ARN_MFA_PART = ":mfa/"
+ASKING_MFA_CODE_BEFORE = "MFA code for "
+ASKING_MFA_CODE_AFTER = ": "
+MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。最初からやり直して、正しい MFA Code を入力してください"
+MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。最初からやり直して、正しい MFA Code を入力してください"
+MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正しない\n\n"
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -67,7 +75,6 @@ class ProfileTuple(NamedTuple):
     aws_secret_access_key: str = None
 
     def __repr__(self) -> str:
-
         return (f'{self.__class__.__name__}('
                 f'{self.name!r}, {self.region!r}, {self.role_arn!r}, {self.source_profile!r}, {self.is_default!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
@@ -78,25 +85,13 @@ class CredentialTuple(NamedTuple):
     aws_secret_access_key: str = None
 
     def __repr__(self) -> str:
-
         return (f'{self.__class__.__name__}('
                 f'{self.name!r}, {self.aws_access_key_id!r}, {self.aws_secret_access_key!r})')
 
 
-class ProfileNumInput:
-    def __init__(self, prompt_num: int = 0):
-        self.prompt_num = prompt_num
-
-    def __repr__(self) -> str:
-
-        return (f'{self.__class__.__name__}('
-                f'{self.prompt_num!r})')
-
 #################################
 # Retrieve Settings
 ################################
-
-
 def prepare_to_read_local_ini_file(abs_file_path):
     """
     Read an ini file to read data from it with configparser
@@ -222,7 +217,7 @@ def get_perfect_profile_list(profile_list, credentials_list) -> list:
 
 
 #################################
-# Provide Prompts
+# Asks for profile number input
 ################################
 def prompt_user_selection(perfect_profile_list):
     """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""
@@ -236,59 +231,72 @@ def prompt_user_selection(perfect_profile_list):
                 count += 1
 
 
-def ask_user_input() -> str:
-    """プロフィール番号を受け付けるため、ユーザーのインプットを待ち受ける"""
+# Validate STEP 1/3
+def ask_profile_num_input_till_its_validated(int_obj: IntObject, perfect_profile_list) -> int:
+    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
+    while not is_input_int_and_in_range(int_obj, perfect_profile_list, ASKING_USER_INPUT_MESSAGE):
+        None
+    # validate_is_input_int_and_in_range() で validate されたインプットを返す
+    return int(int_obj.prompt_num)
 
-    return input(ASKING_USER_INPUT_MESSAGE)
 
-
-def ask_input_integer(profile_num_input, perfect_profile_list: list) -> bool:
+# Validate STEP 2/3
+def is_input_int_and_in_range(int_obj: IntObject, _list: list, message: str) -> bool:
     """
-    While loop をテストするために、ProfileNumInput クラスを介して
-    Validation と ProfileNumInput インスタンスの更新を行う
+    While loop をテストするために、NumInputForWhileLoop クラスを介して
+    Validation と NumInputForWhileLoop インスタンスの更新を行う
     """
     # メニューを表示
-    prompt_user_selection(perfect_profile_list)
+    prompt_user_selection(_list)
     # インプットを促す
-    user_input = ask_user_input()
+    user_input = helper.get_input(message)
+
     try:
-        profile_num_input.prompt_num = user_input
+        # validate_is_input_int_and_in_range() に値を引き継ぐために、
+        # NumInputForWhileLoop インスタンスを使用
+        int_obj.prompt_num = user_input
         # int に変換してエラーとなるかどうかをチェック
-        int(profile_num_input.prompt_num)
-        return ask_input_in_list_range(profile_num_input, perfect_profile_list)
+        int(int_obj.prompt_num)
+        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうか✅
+        return is_input_in_profile_list_range(int_obj, _list)
     except ValueError:
-        # 誤りを指摘し、再入力を促す
-        print(PROMPT_USER_INPUT_BEFORE + str(user_input) + PROMPT_USER_INPUT_AFTER)
-        print(PROMPT_ENTER_AN_INT + "\n")
+        # 誤りを指摘し、再入力を促すプロンプトを表示
+        print(helper.PROMPT_USER_INPUT_BEFORE + str(user_input) + helper.PROMPT_USER_INPUT_AFTER)
+        print(helper.PROMPT_ENTER_AN_INT + "\n")
         return False
 
 
-def ask_input_in_list_range(profile_num_input, perfect_profile_list) -> bool:
+# Validate STEP 3/3
+def is_input_in_profile_list_range(int_obj: IntObject, perfect_profile_list: list) -> bool:
     """
     While loop をテストするために、ProfileNumInput クラスを介して
     Validation と ProfileNumInput インスタンスの更新を行う
     """
 
-    if 0 < int(profile_num_input.prompt_num) <= len(perfect_profile_list):
+    # input で受け取った値が リストの範囲内かどうかチェック
+    if 0 < int(int_obj.prompt_num) <= len(perfect_profile_list):
         return True
     else:
-        print(PROMPT_USER_INPUT_BEFORE + str(profile_num_input.prompt_num) + PROMPT_USER_INPUT_AFTER)
+        print(helper.PROMPT_USER_INPUT_BEFORE + str(int_obj.prompt_num) + helper.PROMPT_USER_INPUT_AFTER)
         print(PROMPT_NOT_AN_VALID_INT_BEFORE + str(len(perfect_profile_list)) + PROMPT_NOT_AN_VALID_INT_AFTER + "\n")
         return False
 
-    
-def ask_profile_num_input(profile_num_input: ProfileNumInput, perfect_profile_list) -> int:
-    """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
-    while not ask_input_integer(profile_num_input, perfect_profile_list):
-        None
-    return int(profile_num_input.prompt_num)
 
-
-def get_specified_profile(perfect_profile_list, validated_input) -> ProfileTuple:
-    """int に応じた """
+def get_specified_profile(perfect_profile_list: list, validated_input: int) -> ProfileTuple:
+    """int に応じた profile を取得"""
     return perfect_profile_list[validated_input - 1]
 
 
+def get_selected_profile():
+    profile_list = get_profile_obj_list()
+    perfect_profile_list = get_perfect_profile_list(profile_list, get_credentials_obj_list())
+    validated_input = ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
+    return get_specified_profile(perfect_profile_list, validated_input)
+
+
+#################################
+# Get an aws account id for a profile
+################################
 def check_aws_accounts_for_set_aws_mfa_existence() -> bool:
     """
     Check if ~/.aws_accounts_for_set_aws_mfa exists
@@ -303,51 +311,150 @@ def create_aws_account_id_file():
     helper.create_a_file_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
-def prompt_for_asking_mfa_code(perfect_profile):
+def prepare_aws_account_id_file():
+    """
+    ~/.aws_accounts_for_set_aws_mfa の存在を確認し、なければ作成する
+    """
+    if not check_aws_accounts_for_set_aws_mfa_existence():
+        create_aws_account_id_file()
+    prepare_to_read_local_ini_file(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+
+
+def prompt_for_asking_aws_account_id(perfect_profile):
+    """該当プロフィールのアカウントID入力を促すプロンプトを表示する"""
+    print(PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE + perfect_profile.name +
+          PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
+
+
+def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
+    """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
+
+    prepare_to_read_local_ini_file(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+
+    Config[profile.name] = {"aws_account_id": aws_account_id}
+    filename = os.path.expanduser(AWS_ACCOUNT_FOR_SET_AWS_MFA)
+    with open(filename, "w") as configfile:
+        Config.write(configfile)
+
+
+def get_aws_account_id_file_section_dict() -> collections.OrderedDict:
+    """~/.aws_accounts_for_set_aws_mfa から Section 情報を取得する"""
+    # ~/.aws_accounts_for_set_aws_mfa の有無を確認し、なければ生成する
+    prepare_aws_account_id_file()
+    # 該当 ini ファイルのセクション dictionary を取得
+    return Config._sections
+
+
+def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
+    """該当 profile の AWS account id を取得する"""
+    account_id_section_dict = get_aws_account_id_file_section_dict()
+    aws_account_id = 0
+
+    # 該当ファイルのセクションに、該当 profile が存在している場合
+    if perfect_profile.name in account_id_section_dict.keys():
+        for profile, values in account_id_section_dict.items():
+            if profile == perfect_profile.name:
+                # 該当profile の aws_account_id の値を取得する
+                aws_account_id = values.get("aws_account_id")
+    else:  # 該当ファイルのセクションに、該当 profile が存在しない場合
+        # aws account id の入力を要求し、
+        prompt_for_asking_aws_account_id(perfect_profile)
+        aws_account_id = helper.ask_int_input_till_its_validated(IntObject(), ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
+        # 該当ファイルに書き込む
+        writing_aws_account_to_the_file(perfect_profile, aws_account_id)
+        # 再帰的に本関数を呼び出して、書き込み済みの aws account id を取得する
+        get_aws_account_id(perfect_profile)
+
+    return int(aws_account_id)
+
+
+#################################
+# Ask MFA code
+################################
+def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
 
 
-def get_aws_account_id(perfect_profile: ProfileTuple):
-    # TODO:
-    return 33333333
+def get_mfa_code(perfect_profile: ProfileTuple):
+
+    prompt_for_asking_mfa_code(perfect_profile)
+    return helper.ask_int_input_till_its_validated(
+        IntObject(), ASKING_MFA_CODE_BEFORE + perfect_profile.name + ASKING_MFA_CODE_AFTER
+    )
 
 
 #################################
 # Access AWS
 ################################
-def get_mfa_arn(perfect_profile: ProfileTuple):
-    # TODO:
-    return perfect_profile.name
+def get_mfa_arn(perfect_profile: ProfileTuple) -> str:
+    """mfa arn を返す"""
+
+    return AWS_IAM_ARN_HEAD_PART + str(
+        get_aws_account_id(perfect_profile)) + AWS_IAM_ARN_MFA_PART + perfect_profile.name
 
 
 def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
-    session = boto3.session.Session(profile_name=perfect_profile.name)
+    """sts の client を取得する"""
+    session = None
+    try:
+        session = boto3.session.Session(profile_name=perfect_profile.name)
+    except ClientError:
+        logger.exception("Failed to get session.")
+
     return session.client('sts')
+
+
+def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: str):
+    """session token を取得する"""
+    token_info = None
+    try:
+        token_info = sts_client.get_session_token(
+            DurationSeconds=43200,  # 12 hours
+            SerialNumber=mfa_arn,
+            TokenCode=mfa_code
+        )
+    except ClientError as e:
+        if "less than or equal to 6" in str(e):
+            print(MSG_TOO_LONG_MFA_CODE)
+
+        elif "MultiFactorAuthentication" in str(e):
+            print(MFA_FAILURE_MESSAGE)
+
+    except ParamValidationError as e:
+        if "Invalid length" in str(e):
+            print(MSG_TOO_SHORT_MFA_CODE)
+
+    except Exception:
+        logger.exception("This msg is not displayed.")
+        raise
+    return token_info
 
 
 #################################
 # Orchestrate functions
 ################################
 def main():
-
     # 設定の事前確認
     check_aws_config_existence()
     check_aws_credentials_existence()
+
     # 設定情報取得
     profile_list = get_profile_obj_list()
-    perfect_profile_list = get_perfect_profile_list(
-        profile_list,
-        get_credentials_obj_list())
     role_profile = get_role_profile(profile_list)
-    # ユーザー入力要求
-    validated_input = ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
-    selected_profile = get_specified_profile(perfect_profile_list, validated_input)
-    prompt_for_asking_mfa_code(selected_profile)
 
-    get_sts_client(selected_profile)
+    # profile 選択のためのユーザー入力要求
+    selected_profile = get_selected_profile()
+
+    # 選択した profile の mfa の arn を用意するために、aws account id を取得
+    mfa_arn = get_mfa_arn(selected_profile)
+
+    mfa_code = get_mfa_code(selected_profile)
+
+    sts_client = get_sts_client(selected_profile)
+
+    token_info = get_token_info(sts_client, mfa_arn, str(mfa_code))
 
 
 if __name__ == "__main__":
     main()
-

@@ -18,6 +18,7 @@ bandit = "*"
 pprint = "*"
 set-aws-mfa = {editable = true,path = "."}
 factory-boy = "*"
+tbvaccine = "*"
 
 [requires]
 python_version = "3.7"

@@ -3,7 +3,58 @@
 from random import randint
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
-from set_aws_mfa.set_aws_mfa import ProfileNumInput
+from set_aws_mfa.set_aws_mfa import IntObject
+from botocore.exceptions import ClientError, ParamValidationError
+import pytest
+
+########################
+# fixtures
+########################
+@pytest.fixture()
+def get_valid_mfa_arn(monkeypatch, valid_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return valid_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
+
+
+@pytest.fixture()
+def get_short_mfa_arn(monkeypatch, short_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return short_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
+
+
+@pytest.fixture()
+def get_string_mfa_arn(monkeypatch, string_aws_account_id, perfect_profile):
+
+    def mock_get_aws_account_id(perfect_profile):
+        return string_aws_account_id
+
+    monkeypatch.setattr(set_aws_mfa, "get_aws_account_id", mock_get_aws_account_id)
+    return set_aws_mfa.get_mfa_arn(perfect_profile)
+
+
+@pytest.fixture()
+def get_sts_client(perfect_profile):
+    return set_aws_mfa.get_sts_client(perfect_profile)
+
+
+def test_classes_magic_methods():
+    temp_name = "Suzuki"
+    temp_region = "eu-central-1"
+    temp_profile = ProfileTuple(temp_name, temp_region).__repr__()
+    assert temp_name in temp_profile
+    assert temp_region in temp_profile
+    temp_cred = set_aws_mfa.CredentialTuple(temp_name).__repr__()
+    assert temp_name in temp_cred
+    temp_int = set_aws_mfa.IntObject(9).__repr__()
+    assert "9" in temp_int
 
 
 def test_get_profile_instance_for_user_input(perfect_profile_list):
@@ -35,9 +86,21 @@ def test_return_user_input_num(monkeypatch, perfect_profile_list):
     monkeypatch.setattr('builtins.input', lambda _: "3")
 
     # WHEN: validate with this function
-    user_input = set_aws_mfa.ask_profile_num_input(ProfileNumInput(), perfect_profile_list)
+    user_input = set_aws_mfa.ask_profile_num_input_till_its_validated(IntObject(), perfect_profile_list)
     # THEN: the returned value is int
     assert type(user_input) is int
+
+
+def test_get_mfa_code(perfect_profile_list, monkeypatch):
+
+    # GIVEN: a profile
+    profile = perfect_profile_list[0]
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr('builtins.input', lambda _: "3334444")
+    # WHEN: input mfa code
+    mfa_code = set_aws_mfa.get_mfa_code(profile)
+    # THEN: the returned value is an int
+    assert type(mfa_code) is int
 
 
 def test_get_sts_client(perfect_profile_list):
@@ -52,10 +115,31 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
+def test_get_mfa_token_with_short_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+
+    # GIVEN: too short mfa code
+    mfa_code = "33"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MSG_TOO_SHORT_MFA_CODE == out.rstrip()
+
+    # GIVEN: too long mfa code
+    mfa_code = "33333333"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MSG_TOO_LONG_MFA_CODE == out.rstrip()
 
 
-# TODO: 受け取ったトークンで認証を試みる
-# TODO: テスト：認証に失敗した場合
-# TODO: テスト：認証が成功したことを確認
-# TODO: テスト：認証が成功したことを表示
-# TODO: テスト：AWS 受け取ったトークンを環境変数に設定できる？
+def test_get_mfa_token_with_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+
+    # GIVEN: Wrong mfa code
+    mfa_code = "123456"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() == out.rstrip()

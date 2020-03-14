@@ -425,9 +425,6 @@ def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: st
         if "Invalid length" in str(e):
             print(MSG_TOO_SHORT_MFA_CODE)
 
-    except Exception:
-        logger.exception("This msg is not displayed.")
-        raise
     return token_info
 
 

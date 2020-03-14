@@ -7,7 +7,7 @@ import os
 import configparser
 from typing import NamedTuple
 import boto3
-from botocore.client import ClientError
+from botocore.exceptions import ClientError, ParamValidationError
 
 from helper import helper
 from helper.helper import IntObject
@@ -56,6 +56,9 @@ AWS_IAM_ARN_HEAD_PART = "arn:aws:iam::"
 AWS_IAM_ARN_MFA_PART = ":mfa/"
 ASKING_MFA_CODE_BEFORE = "MFA code for "
 ASKING_MFA_CODE_AFTER = ": "
+MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。最初からやり直して、正しい MFA Code を入力してください"
+MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。最初からやり直して、正しい MFA Code を入力してください"
+MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正しない\n\n"
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -411,9 +414,20 @@ def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: st
             SerialNumber=mfa_arn,
             TokenCode=mfa_code
         )
+    except ClientError as e:
+        if "less than or equal to 6" in str(e):
+            print(MSG_TOO_LONG_MFA_CODE)
 
-    except ClientError:
+        elif "MultiFactorAuthentication" in str(e):
+            print(MFA_FAILURE_MESSAGE)
+
+    except ParamValidationError as e:
+        if "Invalid length" in str(e):
+            print(MSG_TOO_SHORT_MFA_CODE)
+
+    except Exception:
         logger.exception("This msg is not displayed.")
+        raise
     return token_info
 
 

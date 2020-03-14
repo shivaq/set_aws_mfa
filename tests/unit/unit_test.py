@@ -4,8 +4,8 @@ from random import randint
 from set_aws_mfa import set_aws_mfa
 from set_aws_mfa.set_aws_mfa import ProfileTuple
 from set_aws_mfa.set_aws_mfa import IntObject
+from botocore.exceptions import ClientError, ParamValidationError
 import pytest
-
 
 ########################
 # fixtures
@@ -115,10 +115,31 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
+def test_get_mfa_token_with_short_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+
+    # GIVEN: too short mfa code
+    mfa_code = "33"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MSG_TOO_SHORT_MFA_CODE == out.rstrip()
+
+    # GIVEN: too long mfa code
+    mfa_code = "33333333"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MSG_TOO_LONG_MFA_CODE == out.rstrip()
 
 
-# TODO: 受け取ったトークンで認証を試みる
-# TODO: テスト：認証に失敗した場合
-# TODO: テスト：認証が成功したことを確認
-# TODO: テスト：認証が成功したことを表示
-# TODO: テスト：AWS 受け取ったトークンを環境変数に設定できる？
+def test_get_mfa_token_with_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+
+    # GIVEN: Wrong mfa code
+    mfa_code = "123456"
+    # "WHEN: Ask for aws token
+    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    out, err = capsys.readouterr()
+    # THEN: message is printed
+    assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() == out.rstrip()

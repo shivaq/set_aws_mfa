@@ -115,7 +115,7 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
-def test_get_mfa_token_with_short_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+def test_get_mfa_token_with_wrong_length_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
 
     # GIVEN: too short mfa code
     mfa_code = "33"
@@ -134,7 +134,7 @@ def test_get_mfa_token_with_short_mfa_code(get_sts_client, get_valid_mfa_arn, ca
     assert set_aws_mfa.MSG_TOO_LONG_MFA_CODE == out.rstrip()
 
 
-def test_get_mfa_token_with_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
 
     # GIVEN: Wrong mfa code
     mfa_code = "123456"

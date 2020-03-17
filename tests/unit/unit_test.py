@@ -6,6 +6,7 @@ from set_aws_mfa.set_aws_mfa import ProfileTuple
 from set_aws_mfa.set_aws_mfa import IntObject
 from botocore.exceptions import ClientError, ParamValidationError
 import pytest
+from helper import helper
 
 ########################
 # fixtures
@@ -164,6 +165,20 @@ def test_input_range_failure(capsys, monkeypatch):
     out, err = capsys.readouterr()
     assert not result
     assert "1 から {0} の値を入力してください".format(menu_num) in out.rstrip()
+
+
+def test_input_for_mfa_with_string_error(capsys, monkeypatch):
+    """input が範囲外の数値だった場合に、プロンプトが表示され、かつ False が返ってくる"""
+    # GIVEN: some message
+    msg = "nothing"
+    # GIVEN: out of range input
+    int_input = "aiueo"
+    monkeypatch.setattr('builtins.input', lambda _: int_input)
+    # WHEN: check if the input is in range
+    result = set_aws_mfa.is_input_int_and_in_range_for_mfa_failure(IntObject(), msg)
+    out, err = capsys.readouterr()
+    assert not result
+    assert helper.PROMPT_USER_INPUT_BEFORE in out.rstrip()
 
 
 def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_valid_mfa_arn, monkeypatch, capsys):

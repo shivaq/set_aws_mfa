@@ -134,7 +134,13 @@ def test_get_mfa_token_with_wrong_length_mfa_code(get_sts_client, get_valid_mfa_
     assert set_aws_mfa.MSG_TOO_LONG_MFA_CODE == out.rstrip()
 
 
-def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, capsys, monkeypatch):
+
+    # GIVEN: select profile modification
+    # "reading from stdin while output is captured!" を回避するために、インプットを Mock
+    selected_measure = 1
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr('builtins.input', lambda _: selected_measure)
 
     # GIVEN: Wrong mfa code
     mfa_code = "123456"
@@ -143,3 +149,13 @@ def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, ca
     out, err = capsys.readouterr()
     # THEN: message is printed
     assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() == out.rstrip()
+
+
+def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_valid_mfa_arn, monkeypatch, capsys):
+    # GIVEN: select profile modification
+    selected_measure = 1
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr('builtins.input', lambda _: selected_measure)
+    validated_selection = set_aws_mfa.ask_for_mfa_failure_inputs(IntObject())
+
+    assert type(validated_selection) is int

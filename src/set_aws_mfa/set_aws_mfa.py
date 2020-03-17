@@ -58,7 +58,11 @@ ASKING_MFA_CODE_BEFORE = "MFA code for "
 ASKING_MFA_CODE_AFTER = ": "
 MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。最初からやり直して、正しい MFA Code を入力してください"
 MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。最初からやり直して、正しい MFA Code を入力してください"
-MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正しない\n\n"
+MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが" \
+                      "間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正しない\n\n"
+MSG_EDIT_AWS_FILES = "~/.aws/config, ~/.aws/credentials に有効な profile を記載し、" + AWS_ACCOUNT_FOR_SET_AWS_MFA + \
+                     "の profile も更新してください"
+INPUT_No = "No: "
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -243,8 +247,8 @@ def ask_profile_num_input_till_its_validated(int_obj: IntObject, perfect_profile
 # Validate STEP 2/3
 def is_input_int_and_in_range(int_obj: IntObject, _list: list, message: str) -> bool:
     """
-    While loop をテストするために、NumInputForWhileLoop クラスを介して
-    Validation と NumInputForWhileLoop インスタンスの更新を行う
+    While loop をテストするために、IntObject クラスを介して
+    Validation と IntObject インスタンスの更新を行う
     """
     # メニューを表示
     prompt_user_selection(_list)
@@ -269,8 +273,8 @@ def is_input_int_and_in_range(int_obj: IntObject, _list: list, message: str) -> 
 # Validate STEP 3/3
 def is_input_in_profile_list_range(int_obj: IntObject, perfect_profile_list: list) -> bool:
     """
-    While loop をテストするために、ProfileNumInput クラスを介して
-    Validation と ProfileNumInput インスタンスの更新を行う
+    While loop をテストするために、IntObject クラスを介して
+    Validation と IntObject インスタンスの更新を行う
     """
 
     # input で受け取った値が リストの範囲内かどうかチェック
@@ -384,6 +388,44 @@ def get_mfa_code(perfect_profile: ProfileTuple):
     )
 
 
+# Validate STEP 1/2
+def ask_for_mfa_failure_inputs(int_obj: IntObject) -> int:
+    """番号入力 input() が validate するまでループさせる"""
+    while not is_input_int_and_in_range_for_mfa_failure(int_obj, INPUT_No):
+        pass
+    return int_obj.prompt_num
+
+
+# Validate STEP 2/2
+def is_input_int_and_in_range_for_mfa_failure(int_obj: IntObject, message: str) -> bool:
+    """
+    While loop をテストするために、IntObject クラスを介して
+    Validation と IntObject インスタンスの更新を行う
+    """
+    menu_num = 4
+    # メニューを表示
+    print(MFA_FAILURE_MESSAGE)
+    # インプットを促す
+    user_input = helper.get_input(message)
+
+    try:
+        # 値を引き継ぐために、IntObject インスタンスを使用
+        int_obj.prompt_num = user_input
+        # int に変換してエラーとなるかどうかをチェック
+        int(int_obj.prompt_num)
+        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうかcheck
+        if int(int_obj.prompt_num) <= menu_num:
+            return True
+        else:
+            print("1 から {0} の値を入力してください".format(menu_num))
+            return False
+    except ValueError:
+        # 誤りを指摘し、再入力を促すプロンプトを表示
+        print(helper.PROMPT_USER_INPUT_BEFORE + str(user_input) + helper.PROMPT_USER_INPUT_AFTER)
+        print(helper.PROMPT_ENTER_AN_INT + "\n")
+        return False
+
+
 #################################
 # Access AWS
 ################################
@@ -419,7 +461,7 @@ def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: st
             print(MSG_TOO_LONG_MFA_CODE)
 
         elif "MultiFactorAuthentication" in str(e):
-            print(MFA_FAILURE_MESSAGE)
+            selected_measure = ask_for_mfa_failure_inputs(IntObject())
 
     except ParamValidationError as e:
         if "Invalid length" in str(e):

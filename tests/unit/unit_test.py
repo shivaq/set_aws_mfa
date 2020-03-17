@@ -151,6 +151,21 @@ def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, ca
     assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() == out.rstrip()
 
 
+def test_input_range_failure(capsys, monkeypatch):
+    """input が範囲外の数値だった場合に、プロンプトが表示され、かつ False が返ってくる"""
+    # GIVEN: some message
+    msg = "nothing"
+    menu_num = 4
+    # GIVEN: out of range input
+    int_input = 33333
+    monkeypatch.setattr('builtins.input', lambda _: int_input)
+    # WHEN: check if the input is in range
+    result = set_aws_mfa.is_input_int_and_in_range_for_mfa_failure(IntObject(), msg)
+    out, err = capsys.readouterr()
+    assert not result
+    assert "1 から {0} の値を入力してください".format(menu_num) in out.rstrip()
+
+
 def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_valid_mfa_arn, monkeypatch, capsys):
     # GIVEN: select profile modification
     selected_measure = 1

@@ -84,8 +84,9 @@ def test_no_aws_accounts_for_set_aws_mfa_returns_false(set_fake_aws_account_file
 # テスト ~/.aws_accounts_for_set_aws_mfa が存在しない場合、作成する
 def test_create_aws_accounts_for_set_aws_mfa(set_fake_aws_account_files, delete_fake_aws_account_files):
     # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA replaced with fake path
-    # WHEN: Try to create AWS_ACCOUNT_FOR_SET_AWS_MFA
-    set_aws_mfa.create_aws_account_id_file()
+    # GIVEN: the path of AWS_ACCOUNT_FOR_SET_AWS_MFA is not exist
+    # WHEN: Try to prepare AWS_ACCOUNT_FOR_SET_AWS_MFA and it is created
+    set_aws_mfa.prepare_aws_account_id_file()
 
     # WHEN: Check the existence of AWS_ACCOUNT_FOR_SET_AWS_MFA
     is_the_file_exists = set_aws_mfa.check_aws_accounts_for_set_aws_mfa_existence()

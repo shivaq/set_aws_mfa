@@ -116,12 +116,12 @@ def test_get_sts_client(perfect_profile_list):
     assert sts_client is not None
 
 
-def test_get_mfa_token_with_wrong_length_mfa_code(get_sts_client, get_valid_mfa_arn, capsys):
+def test_get_mfa_token_with_wrong_length_mfa_code(perfect_profile, get_sts_client, get_valid_mfa_arn, capsys):
 
     # GIVEN: too short mfa code
     mfa_code = "33"
     # "WHEN: Ask for aws token
-    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    set_aws_mfa.get_token_info(perfect_profile, get_sts_client, get_valid_mfa_arn, mfa_code)
     out, err = capsys.readouterr()
     # THEN: message is printed
     assert set_aws_mfa.MSG_TOO_SHORT_MFA_CODE == out.rstrip()
@@ -129,13 +129,13 @@ def test_get_mfa_token_with_wrong_length_mfa_code(get_sts_client, get_valid_mfa_
     # GIVEN: too long mfa code
     mfa_code = "33333333"
     # "WHEN: Ask for aws token
-    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    set_aws_mfa.get_token_info(perfect_profile, get_sts_client, get_valid_mfa_arn, mfa_code)
     out, err = capsys.readouterr()
     # THEN: message is printed
     assert set_aws_mfa.MSG_TOO_LONG_MFA_CODE == out.rstrip()
 
 
-def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, capsys, monkeypatch):
+def test_get_mfa_token_with_wrong_mfa_code(perfect_profile, get_sts_client, get_valid_mfa_arn, capsys, monkeypatch):
 
     # GIVEN: select profile modification
     # "reading from stdin while output is captured!" を回避するために、インプットを Mock
@@ -146,10 +146,10 @@ def test_get_mfa_token_with_wrong_mfa_code(get_sts_client, get_valid_mfa_arn, ca
     # GIVEN: Wrong mfa code
     mfa_code = "123456"
     # "WHEN: Ask for aws token
-    set_aws_mfa.get_token_info(get_sts_client, get_valid_mfa_arn, mfa_code)
+    set_aws_mfa.get_token_info(perfect_profile, get_sts_client, get_valid_mfa_arn, mfa_code)
     out, err = capsys.readouterr()
     # THEN: message is printed
-    assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() == out.rstrip()
+    assert set_aws_mfa.MFA_FAILURE_MESSAGE.rstrip() in out.rstrip()
 
 
 def test_input_range_failure(capsys, monkeypatch):

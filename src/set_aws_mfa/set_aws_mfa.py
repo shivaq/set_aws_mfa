@@ -51,6 +51,7 @@ PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAコードを入力してく�
 AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id が記録されていません。入力してください。"
+PROMPT_ASK_UPDATE_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id を更新します。入力してください。"
 ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
 AWS_IAM_ARN_HEAD_PART = "arn:aws:iam::"
 AWS_IAM_ARN_MFA_PART = ":mfa/"
@@ -59,7 +60,7 @@ ASKING_MFA_CODE_AFTER = ": "
 MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。最初からやり直して、正しい MFA Code を入力してください"
 MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。最初からやり直して、正しい MFA Code を入力してください"
 MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが" \
-                      "間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正しない\n\n"
+                      "間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正せずに終了する\n\n"
 MSG_EDIT_AWS_FILES = "~/.aws/config, ~/.aws/credentials に有効な profile を記載し、" + AWS_ACCOUNT_FOR_SET_AWS_MFA + \
                      "の profile も更新してください"
 INPUT_No = "No: "
@@ -94,7 +95,7 @@ class CredentialTuple(NamedTuple):
 
 
 #################################
-# Retrieve Settings
+# configparser operation
 ################################
 def prepare_to_read_local_ini_file(abs_file_path):
     """
@@ -107,6 +108,19 @@ def prepare_to_read_local_ini_file(abs_file_path):
         Config.read_file(cfg)
 
 
+def update_config_parser(file_path: str, section: str, key: str, value):
+    prepare_to_read_local_ini_file(file_path)
+
+    Config[section] = {key: value}
+
+    filename = os.path.expanduser(file_path)
+    with open(filename, "w") as configfile:
+        Config.write(configfile)
+
+
+#################################
+# Retrieve Settings
+################################
 def check_aws_config_existence():
     """
     Check if ~/.aws/config exists
@@ -330,15 +344,16 @@ def prompt_for_asking_aws_account_id(perfect_profile):
           PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
 
 
+def prompt_for_update_aws_account_id(perfect_profile):
+    """該当プロフィールのアカウントID入力を促すプロンプトを表示する"""
+    print(PROMPT_ASK_AWS_ACCOUNT_ID_FOR_PROFILE_BEFORE + perfect_profile.name +
+          PROMPT_ASK_UPDATE_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER)
+
+
 def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
     """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
 
-    prepare_to_read_local_ini_file(AWS_ACCOUNT_FOR_SET_AWS_MFA)
-
-    Config[profile.name] = {"aws_account_id": aws_account_id}
-    filename = os.path.expanduser(AWS_ACCOUNT_FOR_SET_AWS_MFA)
-    with open(filename, "w") as configfile:
-        Config.write(configfile)
+    update_config_parser(AWS_ACCOUNT_FOR_SET_AWS_MFA, profile.name, "aws_account_id", aws_account_id)
 
 
 def get_aws_account_id_file_section_dict() -> collections.OrderedDict:
@@ -370,6 +385,16 @@ def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
         get_aws_account_id(perfect_profile)
 
     return int(aws_account_id)
+
+
+def reset_aws_account_id(perfect_profile: ProfileTuple):
+    # aws account id の入力を要求し、
+    prompt_for_update_aws_account_id(perfect_profile)
+    aws_account_id = helper.ask_int_input_till_its_validated(IntObject(), ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE)
+    # 該当ファイルに書き込む
+    writing_aws_account_to_the_file(perfect_profile, aws_account_id)
+    # 再帰的に本関数を呼び出して、書き込み済みの aws account id を取得する
+    get_aws_account_id(perfect_profile)
 
 
 #################################
@@ -447,7 +472,7 @@ def get_sts_client(perfect_profile: ProfileTuple) -> boto3.session.Session:
     return session.client('sts')
 
 
-def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: str):
+def get_token_info(selected_profile: ProfileTuple, sts_client: boto3.session.Session, mfa_arn: str, mfa_code: str):
     """session token を取得する"""
     token_info = None
     try:
@@ -462,12 +487,35 @@ def get_token_info(sts_client: boto3.session.Session, mfa_arn: str, mfa_code: st
 
         elif "MultiFactorAuthentication" in str(e):
             selected_measure = ask_for_mfa_failure_inputs(IntObject())
+            switcher = {
+                1: lambda: print(MSG_EDIT_AWS_FILES),  # update profile
+                2: lambda: access_aws_after_reset_aws_account_id(selected_profile),  # update aws account id
+                3: lambda: access_aws_with_mfa_code(selected_profile),  # update mfa code
+                4: lambda: print("終了します")
+            }
+            return switcher[int(selected_measure)]()
 
     except ParamValidationError as e:
         if "Invalid length" in str(e):
             print(MSG_TOO_SHORT_MFA_CODE)
 
     return token_info
+
+
+def access_aws_with_mfa_code(selected_profile):
+    # 選択した profile の mfa の arn を用意するために、aws account id を取得
+    mfa_arn = get_mfa_arn(selected_profile)
+
+    mfa_code = get_mfa_code(selected_profile)
+
+    sts_client = get_sts_client(selected_profile)
+
+    token_info = get_token_info(selected_profile, sts_client, mfa_arn, str(mfa_code))
+
+
+def access_aws_after_reset_aws_account_id(selected_profile):
+    reset_aws_account_id(selected_profile)
+    access_aws_with_mfa_code(selected_profile)
 
 
 #################################
@@ -485,14 +533,7 @@ def main():
     # profile 選択のためのユーザー入力要求
     selected_profile = get_selected_profile()
 
-    # 選択した profile の mfa の arn を用意するために、aws account id を取得
-    mfa_arn = get_mfa_arn(selected_profile)
-
-    mfa_code = get_mfa_code(selected_profile)
-
-    sts_client = get_sts_client(selected_profile)
-
-    token_info = get_token_info(sts_client, mfa_arn, str(mfa_code))
+    access_aws_with_mfa_code(selected_profile)
 
 
 if __name__ == "__main__":

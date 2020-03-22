@@ -189,3 +189,8 @@ def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_
     validated_selection = set_aws_mfa.ask_for_mfa_failure_inputs(IntObject())
 
     assert type(validated_selection) is int
+
+
+# TODO: ~/.aws_tmp_token_for_set_mfa の有無を確認して作成する
+# TODO:各環境変数を export するコマンドを作る
+# TODO: 上記スクリプトがかかれたファイルを実行するようプロンプトに表示する

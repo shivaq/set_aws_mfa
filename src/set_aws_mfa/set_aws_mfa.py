@@ -235,6 +235,15 @@ def get_perfect_profile_list(profile_list, credentials_list) -> list:
     return perfect_profile_list
 
 
+def get_role_list_for_a_profile(profile: ProfileTuple, profile_obj_list: list):
+    """該当プロフィールと紐づくロールを返す"""
+    role_for_the_profile_list = []
+    for profile_obj in profile_obj_list:
+        if profile_obj.source_profile == profile.name:
+            role_for_the_profile_list.append(profile_obj)
+    return role_for_the_profile_list
+
+
 #################################
 # Asks for profile number input
 ################################
@@ -553,7 +562,7 @@ def main():
 
     # profile 選択のためのユーザー入力要求
     selected_profile = get_selected_profile()
-    # TODO: profile をキーに、紐づくロールを取得する
+    role_for_the_profile_list = get_role_list_for_a_profile(selected_profile)
     # TODO: role の選択を促す
     # TODO: 選択したロールで、認証をする
 

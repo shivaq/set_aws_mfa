@@ -209,3 +209,14 @@ def test_get_mfa_arn(perfect_profile_list):
     assert set_aws_mfa.AWS_IAM_ARN_HEAD_PART
     assert set_aws_mfa.AWS_IAM_ARN_MFA_PART
     assert profile.name in mfa_arn
+
+
+def test_get_role_for_a_base_profile(profile_lists: list):
+    """該当プロフィールと紐づくロールを返す"""
+    # GIVEN: a valid profile which can switch role
+    profile_which_has_role = profile_lists[2]
+    # WHEN: Check a role related to a given profile
+    role_for_the_profile_list = set_aws_mfa.get_role_list_for_a_profile(profile_which_has_role, profile_lists)
+    # THEN: there is some roles related to the profile
+    if len(role_for_the_profile_list) != 0:
+        assert role_for_the_profile_list[0].source_profile == profile_which_has_role.name

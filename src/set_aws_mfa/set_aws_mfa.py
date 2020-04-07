@@ -553,6 +553,9 @@ def main():
 
     # profile 選択のためのユーザー入力要求
     selected_profile = get_selected_profile()
+    # TODO: profile をキーに、紐づくロールを取得する
+    # TODO: role の選択を促す
+    # TODO: 選択したロールで、認証をする
 
     access_aws_with_mfa_code(selected_profile)
 

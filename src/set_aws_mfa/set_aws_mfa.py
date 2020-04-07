@@ -64,6 +64,7 @@ MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユー
 MSG_EDIT_AWS_FILES = "~/.aws/config, ~/.aws/credentials に有効な profile を記載し、" + AWS_ACCOUNT_FOR_SET_AWS_MFA + \
                      "の profile も更新してください"
 INPUT_No = "No: "
+AWS_TMP_TOKEN = "~/.aws_tmp_token_for_set_mfa"
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -502,6 +503,22 @@ def get_token_info(selected_profile: ProfileTuple, sts_client: boto3.session.Ses
     return token_info
 
 
+def create_a_file_to_set_env_var(token_info):
+    filename = os.path.expanduser(AWS_TMP_TOKEN)
+    # TODO: スイッチ対象のロールの有無を取得する
+    # パラメータ w のため、ファイルがない場合は作成し、ある場合は上書きする
+    with open(filename, "w") as tk:
+        tk.write("export AWS_ACCESS_KEY_ID=" + token_info['Credentials']['AccessKeyId'] + "\n")
+        tk.write("export AWS_SECRET_ACCESS_KEY=" + token_info['Credentials']['SecretAccessKey'] + "\n")
+        tk.write("export AWS_SESSION_TOKEN=" + token_info['Credentials']['SessionToken'] + "\n")
+        tk.write("export AWS_SECURITY_TOKEN=" + token_info['Credentials']['SessionToken'] + "\n")
+        tk.write("export AWS_SDK_LOAD_CONFIG=true\n")
+        # TODO: スイッチロールをする場合は、環境変数にセットする
+        # todo: デフォルトリージョンを登録する
+        # tk("export AWS_PROFILE=" + role_to_switch + "\n")
+        # tk("export AWS_DEFAULT_REGION=" + region + "\n")
+
+
 def access_aws_with_mfa_code(selected_profile):
     # 選択した profile の mfa の arn を用意するために、aws account id を取得
     mfa_arn = get_mfa_arn(selected_profile)
@@ -511,6 +528,10 @@ def access_aws_with_mfa_code(selected_profile):
     sts_client = get_sts_client(selected_profile)
 
     token_info = get_token_info(selected_profile, sts_client, mfa_arn, str(mfa_code))
+
+    create_a_file_to_set_env_var(token_info)
+
+    print("Please execute 'source {}'".format(AWS_TMP_TOKEN))
 
 
 def access_aws_after_reset_aws_account_id(selected_profile):

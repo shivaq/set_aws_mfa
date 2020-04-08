@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from random import randint
 from set_aws_mfa import set_aws_mfa
+from set_aws_mfa import prompts
 from set_aws_mfa.set_aws_mfa import ProfileTuple
 from set_aws_mfa.set_aws_mfa import IntObject
 from botocore.exceptions import ClientError, ParamValidationError
@@ -189,3 +190,17 @@ def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_
     validated_selection = set_aws_mfa.ask_for_mfa_failure_inputs(IntObject())
 
     assert type(validated_selection) is int
+
+
+def test_prompt_to_select_role(capsys, profile_lists):
+    """ロールリストから、スイッチ対象のロールを促すプロンプトを表示する"""
+    # Given: A selected profile
+    profile_which_has_role = profile_lists[2]
+    # Given: A role for the profile
+    role_list = set_aws_mfa.get_role_list_for_a_profile(profile_which_has_role, profile_lists)
+    # When: call this
+    prompts.prompt_role_selection(role_list)
+    out, err = capsys.readouterr()
+
+    assert prompts.MSG_DO_NOT_SWITCH in out.rstrip()
+    assert role_list[0].name in out.rstrip()

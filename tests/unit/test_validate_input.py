@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from random import randint
 from random import choice
-from set_aws_mfa import set_aws_mfa
-from set_aws_mfa.set_aws_mfa import IntObject
+from set_aws_mfa.set_mfa import set_aws_mfa
+from set_aws_mfa.helper.helper import IntObject
 import string
 
 
@@ -25,7 +25,7 @@ def test_user_input_num_not_ok_validation(perfect_profile_list, monkeypatch):
 
     # GIVEN: User inputs random strings
     letters = string.ascii_letters
-    user_input_str = ''.join(choice(letters) for i in range(10))
+    user_input_str = ''.join(choice(letters))
     # GIVEN: Mock user input string
     monkeypatch.setattr('builtins.input', lambda _: user_input_str)
 

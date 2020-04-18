@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from random import randint
-from set_aws_mfa import set_aws_mfa
-from set_aws_mfa import prompts
-from set_aws_mfa.set_aws_mfa import ProfileTuple
-from set_aws_mfa.set_aws_mfa import IntObject
+from set_aws_mfa.set_mfa import set_aws_mfa
+from set_aws_mfa.set_mfa import prompts
+from set_aws_mfa.set_mfa.set_aws_mfa import ProfileTuple
+from set_aws_mfa.helper.helper import IntObject
+from set_aws_mfa.set_mfa import set_aws_mfa
 from botocore.exceptions import ClientError, ParamValidationError
 import pytest
-from helper import helper
+from set_aws_mfa.helper import helper
+
 
 ########################
 # fixtures
@@ -55,7 +57,7 @@ def test_classes_magic_methods():
     assert temp_region in temp_profile
     temp_cred = set_aws_mfa.CredentialTuple(temp_name).__repr__()
     assert temp_name in temp_cred
-    temp_int = set_aws_mfa.IntObject(9).__repr__()
+    temp_int = IntObject(9).__repr__()
     assert "9" in temp_int
 
 

@@ -9,8 +9,8 @@ from typing import NamedTuple
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 
-from helper import helper
-from helper.helper import IntObject
+from set_aws_mfa.helper import helper
+from set_aws_mfa.helper.helper import IntObject
 
 LOG_FILE_NAME = "set_aws_mfa.log"
 

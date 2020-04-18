@@ -16,9 +16,10 @@ boto3 = "*"
 setuptools = "*"
 bandit = "*"
 pprint = "*"
-set-aws-mfa = {editable = true,path = "."}
 factory-boy = "*"
 tbvaccine = "*"
+set-aws-mfa = {editable = true,path = "."}
+pytest-cov = "*"
 
 [requires]
 python_version = "3.7"

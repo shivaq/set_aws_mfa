@@ -2,6 +2,9 @@
 .vscode/
 .coverage
 set_aws_mfa.log
-src/set_aws_mfa.egg-info/
 tests/func/__pycache__/
 tests/unit/__pycache__/
+set_aws_mfa.egg-info/
+set_aws_mfa/__pycache__/
+set_aws_mfa/cli/__pycache__/
+set_aws_mfa/set_aws_mfa.egg-info

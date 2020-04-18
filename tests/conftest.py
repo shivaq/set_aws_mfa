@@ -1,8 +1,8 @@
-from set_aws_mfa import set_aws_mfa
+from set_aws_mfa.set_mfa import set_aws_mfa
 import pytest
 import os
 import configparser
-from helper import helper
+from set_aws_mfa.helper import helper
 
 FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/fake_aws_accounts_for_set_aws_mfa"
 CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"

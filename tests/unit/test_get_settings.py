@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from set_aws_mfa import set_aws_mfa
-from set_aws_mfa.set_aws_mfa import ProfileTuple
+from set_aws_mfa.set_mfa import set_aws_mfa
+from set_aws_mfa.set_mfa.set_aws_mfa import ProfileTuple
 import pytest
 import os
-from helper import helper
-from set_aws_mfa.set_aws_mfa import IntObject
+from set_aws_mfa.helper import helper
+from set_aws_mfa.helper.helper import IntObject
 
 
 ########################

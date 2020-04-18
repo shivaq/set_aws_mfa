@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from set_aws_mfa import set_aws_mfa
+from set_aws_mfa.set_mfa import set_aws_mfa
 import subprocess
 import re
 import pytest
@@ -17,7 +17,7 @@ def test_prompt_iam_user_list(perfect_profile_list):
 
     # WHEN: コンソールでコマンドを実行
     result = subprocess.run(
-        ['python', 'src/set_aws_mfa/set_aws_mfa.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ['python', 'src/set_mfa/set_mfa.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     lines = result.stdout.decode('utf-8').rstrip().splitlines()
 
@@ -30,8 +30,6 @@ def test_prompt_iam_user_list(perfect_profile_list):
             if i != 0 and i != len(lines) -1:
                 # THEN: 数値) で始まる出力がなされる
                 assert re.compile(r"^[0-99]+\)\s").match(line)
-
-            
 
 
 # 1. リストに表示された番号を入力すると、MFA の入力を求められる

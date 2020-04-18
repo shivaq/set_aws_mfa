@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
-from set_aws_mfa import set_aws_mfa
-from helper import helper
+from set_aws_mfa.set_mfa import set_aws_mfa
+from set_aws_mfa.helper import helper
 import pytest
 
 

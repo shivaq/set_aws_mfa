@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 import os
 
+# 入力し直しプロンプト
 PROMPT_USER_INPUT_BEFORE = "\nあなたが入力したのは"
 PROMPT_USER_INPUT_AFTER = "です"
 PROMPT_ENTER_AN_INT = "数値を入力してください"
-
 
 class IntObject:
     def __init__(self, prompt_num: int = 0):
@@ -28,7 +28,7 @@ def create_a_file_in_local(local_file_path_str: str):
     open(filename, 'w+')
 
 
-def delete_a_file_if_it_exists(local_file_path_str:str):
+def delete_a_file_if_it_exists(local_file_path_str: str):
     """該当ローカルファイルが存在していた場合、削除する"""
     filename = os.path.expanduser(local_file_path_str)
     if is_this_file_exists_in_local(local_file_path_str):

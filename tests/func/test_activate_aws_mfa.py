@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from set_aws_mfa.set_mfa import set_aws_mfa
 import subprocess
 import re
-import pytest
-from test.support import captured_stdout
+from set_aws_mfa.prompts import MSG_ASK_SELECT_PROFILE
 
 # 1. ジーザスはターミナルを開く
 # 1. ジーザスが set_aws_mfa コマンドを叩くと、有効なユーザーリストが表示される
@@ -24,7 +22,7 @@ def test_prompt_iam_user_list(perfect_profile_list):
     # GIVEN: 有効なプロフィールがあった場合(プロンプトが標準出力に表示された場合)
     if len(lines) > 1:
         # THEN: プロンプトの文字列が出力される
-        assert lines[0] == set_aws_mfa.MSG_ASK_SELECT_PROFILE
+        assert lines[0] == MSG_ASK_SELECT_PROFILE
         for i, line in enumerate(lines):
             # GIVEN: プロンプトの1行目及び最後以外の行の出力を確認したとき
             if i != 0 and i != len(lines) -1:

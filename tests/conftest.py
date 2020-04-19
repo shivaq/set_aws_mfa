@@ -1,8 +1,9 @@
-from set_aws_mfa.set_mfa import set_aws_mfa
 import pytest
 import os
 import configparser
 from set_aws_mfa.helper import helper
+from set_aws_mfa.data import data_manager
+from set_aws_mfa import validate
 
 FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/fake_aws_accounts_for_set_aws_mfa"
 CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
@@ -14,17 +15,17 @@ Config._interpolation = configparser.ExtendedInterpolation()
 
 @pytest.fixture()
 def profile_lists():
-    return set_aws_mfa.get_profile_obj_list()
+    return data_manager.get_profile_obj_list()
 
 
 @pytest.fixture()
 def credentials_lists():
-    return set_aws_mfa.get_credentials_obj_list()
+    return data_manager.get_credentials_obj_list()
 
 
 @pytest.fixture
 def perfect_profile_list(profile_lists, credentials_lists):
-    return set_aws_mfa.get_perfect_profile_list(
+    return data_manager.get_perfect_profile_list(
         profile_lists, credentials_lists)
 
 
@@ -38,9 +39,11 @@ def perfect_profile(perfect_profile_list):
 ##########################
 @pytest.fixture
 def set_fake_aws_account_files():
-    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA
+    validate.AWS_ACCOUNT_FOR_SET_AWS_MFA = FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA
+    data_manager.AWS_ACCOUNT_FOR_SET_AWS_MFA = FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA
     yield
-    set_aws_mfa.AWS_ACCOUNT_FOR_SET_AWS_MFA = CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA
+    validate.AWS_ACCOUNT_FOR_SET_AWS_MFA = CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA
+    data_manager.AWS_ACCOUNT_FOR_SET_AWS_MFA = CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA
 
 
 @pytest.fixture()
@@ -51,7 +54,7 @@ def delete_fake_aws_account_files():
 
 @pytest.fixture()
 def create_fake_aws_account_files():
-    set_aws_mfa.create_aws_account_id_file()
+    data_manager.create_aws_account_id_file()
 
 
 @pytest.fixture()
@@ -84,4 +87,4 @@ def create_fake_valid_aws_account_id_setting(perfect_profile, valid_aws_account_
         Config.clear()
         Config.read_file(cfg)
 
-    set_aws_mfa.writing_aws_account_to_the_file(perfect_profile, valid_aws_account_id)
+    data_manager.writing_aws_account_to_the_file(perfect_profile, valid_aws_account_id)

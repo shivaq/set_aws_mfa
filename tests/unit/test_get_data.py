@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from random import randint
+
 from set_aws_mfa.data.data_manager import ProfileTuple
 from set_aws_mfa.helper import helper
 from set_aws_mfa import validate
 from set_aws_mfa.data import data_manager
 from set_aws_mfa.helper.helper import IntObject
 from set_aws_mfa import prompts
-
-BUILTIN_INPUTS = 'builtins.input'
+from tests.conftest import BUILTIN_INPUTS
 
 
 ########################
@@ -226,3 +227,16 @@ def test_get_role_for_a_base_profile(profile_lists: list):
     # THEN: there is some roles related to the profile
     if len(role_for_the_profile_list) != 0:
         assert role_for_the_profile_list[0].source_profile == profile_which_has_role.name
+
+
+def test_get_profile_instance_for_user_input(perfect_profile_list):
+
+    # GIVEN: validated input num
+    validated_input = randint(1, len(perfect_profile_list))
+    # WHEN: get profile instance for the input number
+    profile_instance = data_manager.get_specified_profile(
+        perfect_profile_list, validated_input)
+
+    # THEN:
+    assert isinstance(profile_instance, ProfileTuple)
+

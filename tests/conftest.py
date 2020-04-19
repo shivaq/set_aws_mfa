@@ -7,6 +7,7 @@ from set_aws_mfa import validate
 
 FAKE_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/fake_aws_accounts_for_set_aws_mfa"
 CORRECT_AWS_ACCOUNT_FOR_SET_AWS_MFA = "~/.aws_accounts_for_set_aws_mfa"
+BUILTIN_INPUTS = 'builtins.input'
 
 # Get ini config parser
 Config = configparser.ConfigParser()
@@ -88,3 +89,19 @@ def create_fake_valid_aws_account_id_setting(perfect_profile, valid_aws_account_
         Config.read_file(cfg)
 
     data_manager.writing_aws_account_to_the_file(perfect_profile, valid_aws_account_id)
+
+
+@pytest.fixture()
+def get_sts_client(perfect_profile):
+    return data_manager.get_sts_client(perfect_profile)
+
+
+@pytest.fixture()
+def get_valid_mfa_arn(monkeypatch, valid_aws_account_id, perfect_profile):
+
+    # Mock does not use profile, but original function need it.
+    def mock_get_aws_account_id(perfect_profile):
+        return valid_aws_account_id
+
+    monkeypatch.setattr(data_manager, "get_aws_account_id", mock_get_aws_account_id)
+    return data_manager.get_mfa_arn(perfect_profile)

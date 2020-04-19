@@ -62,7 +62,8 @@ def start_set_aws_mfa():
 
     # profile 選択のためのユーザー入力要求
     selected_profile = data_manager.get_selected_profile()
-    # role_for_the_profile_list = data_manager.get_role_list_for_a_profile(selected_profile)
+    role_for_the_profile_list = data_manager.get_role_list_for_a_profile(selected_profile, profile_list)
+    print(role_for_the_profile_list)
     # TODO: profile と関連するロールを取得する
     # TODO: 関連ロールがない場合、入力を促す
     # TODO: role の選択を促す
@@ -70,4 +71,4 @@ def start_set_aws_mfa():
     # TODO: 該当ロールでの認証に失敗したら、ロールのデータを更新、削除を促す
     # TODO: 再度認証を試みる
 
-    access_aws_with_mfa_code(selected_profile)
+    # access_aws_with_mfa_code(selected_profile)

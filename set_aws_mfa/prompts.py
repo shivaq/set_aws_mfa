@@ -39,6 +39,9 @@ PROMPT_ASK_UPDATE_AWS_ACCOUNT_ID_FOR_PROFILE_AFTER = " 用の aws account id を
 # MFAコード入力要求プロンプト
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAコードを入力してください。"
+# ロール関係プロンプト
+MSG_SUGGEST_REGISTER_ROLE = "がスイッチできるロールがセットされていません。セットしますか？"
+MSG_SUGGEST_SELECT_ROLE = "スイッチするロールを選んでください"
 
 
 #################################
@@ -82,3 +85,13 @@ def prompt_for_update_aws_account_id(perfect_profile: ProfileTuple):
 def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
     """該当プロフィールのMFAトークン入力を促すプロンプトを表示する"""
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
+
+
+def prompt_msg_for_the_profile_roles(role_for_the_profile_list):
+    """選択したプロファイルでスイッチロールをするかどうか等のメッセージを表示する"""
+    if len(role_for_the_profile_list) == 0:
+        print(MSG_SUGGEST_REGISTER_ROLE)
+    else:
+        print(MSG_SUGGEST_SELECT_ROLE)
+
+

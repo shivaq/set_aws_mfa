@@ -35,6 +35,16 @@ def perfect_profile(perfect_profile_list):
     return perfect_profile_list[0]
 
 
+@pytest.fixture()
+def profile_which_has_role(profile_obj_list):
+    """スイッチできるロールがある プロファイルを返す"""
+    role_list_for_a_profile = []
+    for profile in profile_obj_list:
+        role_list_for_a_profile = data_manager.get_role_list_for_a_profile(profile, profile_obj_list)
+        if len(role_list_for_a_profile) != 0:
+            return profile
+
+
 ##########################
 # aws account id
 ##########################

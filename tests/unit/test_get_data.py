@@ -49,6 +49,7 @@ def test_get_perfect_profile_list(profile_obj_list, credentials_lists, perfect_p
 
 
 def test_prompt_displays_profile_name(capsys, perfect_profile_list):
+    """テスト：プロファイルの選択肢が表示されるかどうか"""
     # GIVEN: get perfect_profile_list
 
     # WHEN: execute prompt_user_selection()
@@ -220,12 +221,11 @@ def test_get_mfa_arn(perfect_profile_list):
     assert profile.name in mfa_arn
 
 
-def test_get_role_for_a_base_profile(profile_lists: list):
+def test_get_role_for_a_base_profile(profile_which_has_role, profile_obj_list):
     """該当プロフィールと紐づくロールを返す"""
     # GIVEN: a valid profile which can switch role
-    profile_which_has_role = profile_lists[2]
     # WHEN: Check a role related to a given profile
-    role_for_the_profile_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_lists)
+    role_for_the_profile_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
     # THEN: there is some roles related to the profile
     if len(role_for_the_profile_list) != 0:
         assert role_for_the_profile_list[0].source_profile == profile_which_has_role.name

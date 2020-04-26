@@ -3,6 +3,7 @@
 from logging import getLogger, StreamHandler, FileHandler, Formatter, DEBUG, INFO
 from logging.handlers import RotatingFileHandler
 from set_aws_mfa.data.model import ProfileTuple
+from typing import List
 
 ##################
 # configure logging
@@ -87,9 +88,10 @@ def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
     print(PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE + perfect_profile.name + PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER)
 
 
-def prompt_msg_for_the_profile_roles(role_for_the_profile_list):
+def prompt_msg_for_the_profile_roles(profile: ProfileTuple, role_for_the_profile_list: List[ProfileTuple]):
     """選択したプロファイルでスイッチロールをするかどうか等のメッセージを表示する"""
     if len(role_for_the_profile_list) == 0:
-        print(MSG_SUGGEST_REGISTER_ROLE)
+        print(profile.name + MSG_SUGGEST_REGISTER_ROLE)
     else:
-        print(MSG_SUGGEST_SELECT_ROLE)
+        print(profile.name + MSG_SUGGEST_SELECT_ROLE)
+

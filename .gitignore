@@ -1,3 +1,7 @@
+# When .gitignore seems to be not working, 
+# !!!!!! Commit everything you want!
+# Then, git rm -rf --cached .
+# git add .
 .venv/
 .vscode/
 .coverage
@@ -8,3 +12,4 @@ set_aws_mfa.egg-info/
 set_aws_mfa/__pycache__/
 set_aws_mfa/cli/__pycache__/
 set_aws_mfa/set_aws_mfa.egg-info
+set_aws_mfa/data/__pycache__/

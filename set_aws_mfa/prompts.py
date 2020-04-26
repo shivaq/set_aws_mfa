@@ -93,5 +93,3 @@ def prompt_msg_for_the_profile_roles(role_for_the_profile_list):
         print(MSG_SUGGEST_REGISTER_ROLE)
     else:
         print(MSG_SUGGEST_SELECT_ROLE)
-
-

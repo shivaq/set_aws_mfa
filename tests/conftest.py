@@ -15,7 +15,7 @@ Config._interpolation = configparser.ExtendedInterpolation()
 
 
 @pytest.fixture()
-def profile_lists():
+def profile_obj_list():
     return data_manager.get_profile_obj_list()
 
 
@@ -25,9 +25,9 @@ def credentials_lists():
 
 
 @pytest.fixture
-def perfect_profile_list(profile_lists, credentials_lists):
+def perfect_profile_list(profile_obj_list, credentials_lists):
     return data_manager.get_perfect_profile_list(
-        profile_lists, credentials_lists)
+        profile_obj_list, credentials_lists)
 
 
 @pytest.fixture()

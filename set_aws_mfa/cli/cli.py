@@ -57,12 +57,12 @@ def start_set_aws_mfa():
     validate.check_aws_credentials_existence()
 
     # 設定情報取得
-    profile_list = data_manager.get_profile_obj_list()
-    role_profile = data_manager.get_role_profile(profile_list)
+    profile_obj_list = data_manager.get_profile_obj_list()
+    role_profile = data_manager.get_role_profile(profile_obj_list)
 
     # profile 選択のためのユーザー入力要求
     selected_profile = data_manager.get_selected_profile()
-    role_for_the_profile_list = data_manager.get_role_list_for_a_profile(selected_profile, profile_list)
+    role_for_the_profile_list = data_manager.get_role_list_for_a_profile(selected_profile, profile_obj_list)
     print(role_for_the_profile_list)
     # TODO: profile と関連するロールを取得する
     # TODO: 関連ロールがない場合、入力を促す

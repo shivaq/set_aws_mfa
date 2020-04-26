@@ -15,9 +15,10 @@ from tests.conftest import BUILTIN_INPUTS
 # Get profiles
 ########################
 # 1. role の profile を取得する
-def test_role_profiles_item_is_profile_instance(profile_lists):
+def test_role_profiles_item_is_profile_instance(profile_obj_list):
+    """テスト：取得したプロフィールのリストの要素は、ProfileTuple かどうか"""
     # WHEN: role のリスト を取得
-    role_profile_list = data_manager.get_role_profile(profile_lists)
+    role_profile_list = data_manager.get_role_profile(profile_obj_list)
     # THEN: role のリストのアイテムは ProfileTuple クラスのインスタンスである
     for i in role_profile_list:
         assert isinstance(i, ProfileTuple)
@@ -25,12 +26,13 @@ def test_role_profiles_item_is_profile_instance(profile_lists):
 
 
 # 1. config, credentials 両方にいる profile に、credentials の値を合体させたリストを取得する
-def test_get_perfect_profile_list(profile_lists, credentials_lists, perfect_profile_list):
+def test_get_perfect_profile_list(profile_obj_list, credentials_lists, perfect_profile_list):
+    """テスト: 取得したリストは、Credential にも Config にも存在する プロファイルのリストかどうか"""
     # GIVEN: Profile に Credentials の値も合わせた ProfileTuple のリストを取得する
     profile_name_list = []
     credentials_name_list = []
 
-    for i in profile_lists:
+    for i in profile_obj_list:
         # Given: ProfileTuple の name だけを抽出する
         profile_name_list.append(i.name)
     for k in credentials_lists:

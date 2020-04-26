@@ -53,12 +53,11 @@ def test_get_mfa_token_with_wrong_mfa_code(perfect_profile, get_sts_client, get_
     assert data_manager.MFA_FAILURE_MESSAGE.rstrip() in out.rstrip()
 
 
-def test_prompt_to_select_role(capsys, profile_lists):
+def test_prompt_to_select_role(capsys, profile_which_has_role, profile_obj_list):
     """ロールリストから、スイッチ対象のロールを促すプロンプトを表示する"""
     # Given: A selected profile
-    profile_which_has_role = profile_lists[2]
     # Given: A role for the profile
-    role_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_lists)
+    role_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
     # When: call this
     prompts.prompt_role_selection(role_list)
     out, err = capsys.readouterr()

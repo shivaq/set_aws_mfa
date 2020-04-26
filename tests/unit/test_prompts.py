@@ -76,14 +76,15 @@ def test_prompt_msg_for_no_role_profile(capsys):
     assert prompts.MSG_SUGGEST_REGISTER_ROLE in out.rstrip()
 
 
-def test_prompt_msg_for_with_role_profile(capsys, role_list_for_a_profile):
+def test_prompt_msg_for_with_role_profile(capsys, profile_which_has_role, profile_obj_list):
     """テスト: ロールリストの要素数が ゼロ だったときのメッセージ表示"""
-    # GIVEN: list for a role
-    # TODO: 該当profile がスイッチできるロールのリストを取得する
+    # GIVEN: list for roles for a profile
+    role_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
     # WHEN: Check the list
-    prompts.prompt_msg_for_the_profile_roles(role_list_for_a_profile)
+    prompts.prompt_msg_for_the_profile_roles(role_list)
     out, err = capsys.readouterr()
-    assert prompts.MSG_SUGGEST_REGISTER_ROLE in out.rstrip()
+    # THEN: prompt message to select a role
+    assert prompts.MSG_SUGGEST_SELECT_ROLE in out.rstrip()
 
 
 # TODO: テスト: prompt: ロールを使うかどうかのメッセージを表示する

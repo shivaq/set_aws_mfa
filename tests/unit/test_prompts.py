@@ -6,6 +6,7 @@ from set_aws_mfa.data import data_manager
 from tests.conftest import BUILTIN_INPUTS
 from set_aws_mfa.data.data_manager import ProfileTuple
 
+
 def test_prompt_displays_selected_profile_and_asks_for_mfa_input(capsys, perfect_profile_list):
     # GIVEN: a perfect profile
     perfect_profile = perfect_profile_list[0]

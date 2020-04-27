@@ -48,8 +48,8 @@ ASKING_AWS_ACCOUNT_ID_INPUT_MESSAGE = "Aws account Id : "
 # MFA
 ASKING_MFA_CODE_BEFORE = "MFA code for "
 ASKING_MFA_CODE_AFTER = ": "
-MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。最初からやり直して、正しい MFA Code を入力してください"
-MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。最初からやり直して、正しい MFA Code を入力してください"
+MSG_TOO_LONG_MFA_CODE = "MFA Code が長すぎます。"
+MSG_TOO_SHORT_MFA_CODE = "MFA Code が短すぎます。"
 # 認証失敗プロンプト
 MFA_FAILURE_MESSAGE = "\nおっと.....!\n\n認証に失敗しました.\nユーザー名、AWS アカウント ID、MFA CODE のいずれかが" \
                       "間違っているかもしれません。\n修正対象を選んでください\n\n1) ユーザー名\n2) AWS アカウント ID\n3) MFA コード\n4) 修正せずに終了する\n\n"
@@ -246,10 +246,6 @@ def get_aws_account_id(perfect_profile: ProfileTuple) -> int:
     """該当 profile の AWS account id を取得する"""
     account_id_section_dict = get_aws_account_id_file_section_dict()
     aws_account_id = 0
-
-    print(account_id_section_dict.keys())
-    print(perfect_profile)
-
     # 該当ファイルのセクションに、該当 profile が存在している場合
     if perfect_profile.name in account_id_section_dict.keys():
         for profile, values in account_id_section_dict.items():
@@ -299,6 +295,7 @@ def get_token_info(selected_profile: ProfileTuple, sts_client: boto3.session.Ses
     except ClientError as e:
         if "less than or equal to 6" in str(e):
             print(MSG_TOO_LONG_MFA_CODE)
+            cli.access_aws_with_mfa_code(selected_profile)
 
         elif "MultiFactorAuthentication" in str(e):
             selected_measure = validate.ask_for_mfa_failure_inputs(IntObject())
@@ -313,6 +310,7 @@ def get_token_info(selected_profile: ProfileTuple, sts_client: boto3.session.Ses
     except ParamValidationError as e:
         if "Invalid length" in str(e):
             print(MSG_TOO_SHORT_MFA_CODE)
+            cli.access_aws_with_mfa_code(selected_profile)
 
     return token_info
 

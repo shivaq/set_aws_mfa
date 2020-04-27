@@ -133,11 +133,42 @@ def test_valid_input_switch_role_selection(monkeypatch, role_for_the_profile_lis
     selected_measure = 0
     # GIVEN: Mock user input string number
     monkeypatch.setattr(BUILTIN_INPUTS, lambda _: selected_measure)
-    prompt_msg = validate.INPUT_No
+    prompt_str = validate.INPUT_No
     min_menu_num = 0
     max_menu_num = len(role_for_the_profile_list)
 
-    validated_selection = validate.ask_for_selection(prompt_msg, min_menu_num, max_menu_num)
+    validated_selection = validate.ask_for_selection(prompt_str, min_menu_num, max_menu_num)
 
     assert type(validated_selection) is int
-    
+
+
+def test_input_out_of_range_for_role_for_the_profile_list(capsys, monkeypatch, role_for_the_profile_list):
+    """input が範囲外の数値だった場合に、 False が返ってくる"""
+    # GIVEN: select out of range num
+    int_input = len(role_for_the_profile_list) + 1
+    monkeypatch.setattr(BUILTIN_INPUTS, lambda _: int_input)
+
+    # GIVEN: property to validate select role
+    prompt_str = validate.INPUT_No
+    min_menu_num = 0
+    max_menu_num = len(role_for_the_profile_list)
+
+    # WHEN: check if the input is in range
+    is_validated = validate.is_input_int_and_in_range(IntObject(), prompt_str, min_menu_num, max_menu_num)
+    assert not is_validated
+
+
+def test_input_in_range_for_role_for_the_profile_list(capsys, monkeypatch, role_for_the_profile_list):
+    """input が範囲内の数値だった場合に、 True が返ってくる"""
+    # GIVEN: select out of range num
+    int_input = len(role_for_the_profile_list)
+    monkeypatch.setattr(BUILTIN_INPUTS, lambda _: int_input)
+
+    # GIVEN: property to validate select role
+    prompt_str = validate.INPUT_No
+    min_menu_num = 0
+    max_menu_num = len(role_for_the_profile_list)
+
+    # WHEN: check if the input is in range
+    is_validated = validate.is_input_int_and_in_range(IntObject(), prompt_str, min_menu_num, max_menu_num)
+    assert is_validated

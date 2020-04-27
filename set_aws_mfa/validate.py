@@ -77,14 +77,14 @@ def check_aws_accounts_for_set_aws_mfa_existence() -> bool:
 # Validate STEP 1/3
 def ask_profile_num_input_till_its_validated(int_obj: IntObject, perfect_profile_list) -> int:
     """ユーザーのインプットが validate されるまでインプットを求めるのをやめない"""
-    while not is_input_int_and_in_range(int_obj, perfect_profile_list, ASKING_USER_INPUT_MESSAGE):
+    while not is_input_int_and_in_range_for_profile_selection(int_obj, perfect_profile_list, ASKING_USER_INPUT_MESSAGE):
         None
     # validate_is_input_int_and_in_range() で validate されたインプットを返す
     return int(int_obj.prompt_num)
 
 
 # Validate STEP 2/3
-def is_input_int_and_in_range(int_obj: IntObject, _list: list, message: str) -> bool:
+def is_input_int_and_in_range_for_profile_selection(int_obj: IntObject, _list: list, message: str) -> bool:
     """
     While loop をテストするために、IntObject クラスを介して
     Validation と IntObject インスタンスの更新を行う
@@ -156,6 +156,35 @@ def is_input_int_and_in_range_for_mfa_failure(int_obj: IntObject, message: str) 
             return True
         else:
             print("1 から {0} の値を入力してください".format(menu_num))
+            return False
+    except ValueError:
+        # 誤りを指摘し、再入力を促すプロンプトを表示
+        print(PROMPT_USER_INPUT_BEFORE + str(user_input) + PROMPT_USER_INPUT_AFTER)
+        print(PROMPT_ENTER_AN_INT + "\n")
+        return False
+
+
+def ask_for_selection(prompt_msg: str, min_menu_num: int, max_menu_num: int) -> int:
+    """番号入力 input() が validate するまでループさせる"""
+    int_obj = IntObject()
+
+    while not is_input_int_and_in_range(int_obj, prompt_msg, min_menu_num, max_menu_num):
+        pass
+    return int_obj.prompt_num
+
+
+def is_input_int_and_in_range(int_obj: IntObject, prompt_str: str, min_menu_num: int, max_menu_num: int) -> bool:
+    user_input = get_input(prompt_str)
+    try:
+        # 値を引き継ぐために、IntObject インスタンスを使用
+        int_obj.prompt_num = user_input
+        # int に変換してエラーとなるかどうかをチェック
+        int(int_obj.prompt_num)
+        # int 変換でエラーにならなかった場合、今度は下記で、値が範囲内かどうかcheck
+        if (int(int_obj.prompt_num) <= max_menu_num) and (int(int_obj.prompt_num) >= min_menu_num):
+            return True
+        else:
+            print("{} から {} の値を入力してください".format(min_menu_num, max_menu_num))
             return False
     except ValueError:
         # 誤りを指摘し、再入力を促すプロンプトを表示

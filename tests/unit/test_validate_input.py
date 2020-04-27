@@ -17,7 +17,7 @@ def test_user_input_num_ok_validation(perfect_profile_list, monkeypatch):
     monkeypatch.setattr('builtins.input', lambda _: user_input_int)
 
     # WHEN: Validate the number
-    is_that_int = validate.is_input_int_and_in_range(
+    is_that_int = validate.is_input_int_and_in_range_for_profile_selection(
         IntObject(), perfect_profile_list, validate.ASKING_USER_INPUT_MESSAGE)
 
     # THEN: the returned value is True
@@ -33,7 +33,7 @@ def test_user_input_num_not_ok_validation(perfect_profile_list, monkeypatch):
     monkeypatch.setattr('builtins.input', lambda _: user_input_str)
 
     # WHEN: Validate the input
-    is_int = validate.is_input_int_and_in_range(
+    is_int = validate.is_input_int_and_in_range_for_profile_selection(
         IntObject(), perfect_profile_list, validate.ASKING_USER_INPUT_MESSAGE)
     # THEN: It's not an int
     assert not is_int
@@ -117,7 +117,7 @@ def test_input_for_mfa_with_string_error(capsys, monkeypatch):
     assert PROMPT_USER_INPUT_BEFORE in out.rstrip()
 
 
-def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_valid_mfa_arn, monkeypatch, capsys):
+def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_valid_mfa_arn, monkeypatch):
     # GIVEN: select profile modification
     selected_measure = 1
     # GIVEN: Mock user input string number
@@ -126,3 +126,18 @@ def test_input_wrong_mfa_code_and_re_enter_another_mfa_code(get_sts_client, get_
 
     assert type(validated_selection) is int
 
+
+def test_valid_input_switch_role_selection(monkeypatch, role_for_the_profile_list):
+    """テスト: 有効範囲内の値を入力すれば、int が帰ってくる。しかし、誤った値を入れると、正しい値を入力するまで無限ループ"""
+    # GIVEN: select do not switch role
+    selected_measure = 0
+    # GIVEN: Mock user input string number
+    monkeypatch.setattr(BUILTIN_INPUTS, lambda _: selected_measure)
+    prompt_msg = validate.INPUT_No
+    min_menu_num = 0
+    max_menu_num = len(role_for_the_profile_list)
+
+    validated_selection = validate.ask_for_selection(prompt_msg, min_menu_num, max_menu_num)
+
+    assert type(validated_selection) is int
+    

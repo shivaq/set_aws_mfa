@@ -45,6 +45,12 @@ def profile_which_has_role(profile_obj_list):
             return profile
 
 
+@pytest.fixture()
+def role_for_the_profile_list(profile_which_has_role, profile_obj_list):
+    """IAMユーザーと紐付いたロールのリストを返す"""
+    return data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
+
+
 ##########################
 # aws account id
 ##########################

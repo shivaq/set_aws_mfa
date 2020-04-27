@@ -14,17 +14,6 @@ from tests.conftest import BUILTIN_INPUTS
 ########################
 # Get profiles
 ########################
-# 1. role の profile を取得する
-def test_role_profiles_item_is_profile_instance(profile_obj_list):
-    """テスト：取得したプロフィールのリストの要素は、ProfileTuple かどうか"""
-    # WHEN: role のリスト を取得
-    role_profile_list = data_manager.get_role_profile(profile_obj_list)
-    # THEN: role のリストのアイテムは ProfileTuple クラスのインスタンスである
-    for i in role_profile_list:
-        assert isinstance(i, ProfileTuple)
-        assert i.role_arn is not None
-
-
 # 1. config, credentials 両方にいる profile に、credentials の値を合体させたリストを取得する
 def test_get_perfect_profile_list(profile_obj_list, credentials_lists, perfect_profile_list):
     """テスト: 取得したリストは、Credential にも Config にも存在する プロファイルのリストかどうか"""

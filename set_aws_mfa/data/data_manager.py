@@ -188,16 +188,6 @@ def get_credentials_obj_list() -> list:
     return credentials_list
 
 
-def get_role_profile(profile_obj_list) -> list:
-    """IAM ロールの Profile のリストを取得する"""
-    role_obj_list = []
-    for i in profile_obj_list:
-        if i.role_arn is not None:
-            role_obj_list.append(i)
-
-    return role_obj_list
-
-
 def get_perfect_profile_list(profile_list, credentials_list) -> list:
     """ IAM ユーザーと Credentials の情報を合わせた ProfileTuple のリストを取得 """
 

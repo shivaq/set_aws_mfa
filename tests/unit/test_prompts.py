@@ -18,25 +18,6 @@ def test_prompt_displays_selected_profile_and_asks_for_mfa_input(capsys, perfect
     assert perfect_profile.name in out.rstrip()
 
 
-def test_get_mfa_token_with_wrong_length_mfa_code(perfect_profile, get_sts_client, get_valid_mfa_arn, capsys):
-
-    # GIVEN: too short mfa code
-    mfa_code = "33"
-    # "WHEN: Ask for aws token
-    data_manager.get_token_info(perfect_profile, get_sts_client, get_valid_mfa_arn, mfa_code)
-    out, err = capsys.readouterr()
-    # THEN: message is printed
-    assert data_manager.MSG_TOO_SHORT_MFA_CODE == out.rstrip()
-
-    # GIVEN: too long mfa code
-    mfa_code = "33333333"
-    # "WHEN: Ask for aws token
-    data_manager.get_token_info(perfect_profile, get_sts_client, get_valid_mfa_arn, mfa_code)
-    out, err = capsys.readouterr()
-    # THEN: message is printed
-    assert data_manager.MSG_TOO_LONG_MFA_CODE == out.rstrip()
-
-
 def test_get_mfa_token_with_wrong_mfa_code(perfect_profile, get_sts_client, get_valid_mfa_arn, capsys, monkeypatch):
 
     # GIVEN: select profile modification
@@ -54,19 +35,6 @@ def test_get_mfa_token_with_wrong_mfa_code(perfect_profile, get_sts_client, get_
     assert data_manager.MFA_FAILURE_MESSAGE.rstrip() in out.rstrip()
 
 
-def test_prompt_to_select_role(capsys, profile_which_has_role, profile_obj_list):
-    """ロールリストから、スイッチ対象のロールを促すプロンプトを表示する"""
-    # Given: A selected profile
-    # Given: A role for the profile
-    role_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
-    # When: call this
-    prompts.prompt_role_selection(role_list)
-    out, err = capsys.readouterr()
-
-    assert prompts.MSG_DO_NOT_SWITCH in out.rstrip()
-    assert role_list[0].name in out.rstrip()
-
-
 def test_prompt_msg_for_no_role_profile(capsys):
     """テスト: ロールリストの要素数が ゼロ だったときのメッセージ表示"""
     # GIVEN: 0 length list
@@ -79,7 +47,7 @@ def test_prompt_msg_for_no_role_profile(capsys):
 
 
 def test_prompt_msg_for_with_role_profile(capsys, profile_which_has_role, profile_obj_list):
-    """テスト: ロールリストの要素数が ゼロ だったときのメッセージ表示"""
+    """テスト: 選択したプロファイルにスイッチ可能なロールがあるときのメッセージ表示"""
     # GIVEN: list for roles for a profile
     role_list = data_manager.get_role_list_for_a_profile(profile_which_has_role, profile_obj_list)
     # WHEN: Check the list
@@ -87,8 +55,3 @@ def test_prompt_msg_for_with_role_profile(capsys, profile_which_has_role, profil
     out, err = capsys.readouterr()
     # THEN: prompt message to select a role
     assert prompts.MSG_SUGGEST_SELECT_ROLE in out.rstrip()
-
-
-# TODO: テスト: prompt: ロールを使うかどうかのメッセージを表示する
-# TODO: テスト: prompt: ロールのリストを表示する
-# TODO: テスト: ロールのリストを表示する

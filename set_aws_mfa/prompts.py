@@ -31,6 +31,8 @@ logger.propagate = False
 # ロール番号入力要求プロンプト
 MSG_ASK_SELECT_ROLE = "スイッチロール対象の番号を、選択してください"
 MSG_DO_NOT_SWITCH = "0) スイッチロールを行わない"
+MSG_REGISTER_ROLE_BEFORE = "1) "
+MSG_REGISTER_ROLE_AFTER = "用のロールを設定ファイルに新規登録"
 # 番号入力要求プロンプト
 MSG_ASK_SELECT_PROFILE = "Input a number for an aws login user."
 # AWS Account Id 入力要求プロンプト
@@ -79,17 +81,23 @@ def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
 
 def prompt_msg_for_the_profile_roles(profile: ProfileTuple, role_for_the_profile_list: List[ProfileTuple]):
     """選択したプロファイルでスイッチロールをするかどうか等のメッセージを表示する"""
+
+    # 関連ロールが 0 の場合
     if len(role_for_the_profile_list) == 0:
         print("\n" + profile.name + " " + MSG_SUGGEST_REGISTER_ROLE)
-    else:
-        print("\n" + profile.name + " " + MSG_SUGGEST_SELECT_ROLE)
-
-
-def prompt_role_selection(role_list):
-    """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""
-    if len(role_list) != 0:
         print(MSG_DO_NOT_SWITCH)
-        count = 1
-        for profile_obj_for_role in role_list:
-            print("{}) {}".format(count, profile_obj_for_role.name))
+        print(MSG_REGISTER_ROLE_BEFORE + profile.name + MSG_REGISTER_ROLE_AFTER)
+    else:  # 関連ロールが 存在する場合
+        print("\n" + profile.name + " " + MSG_SUGGEST_SELECT_ROLE)
+        print(MSG_DO_NOT_SWITCH)
+        print(MSG_REGISTER_ROLE_BEFORE + profile.name + MSG_REGISTER_ROLE_AFTER)
+        count = 2
+        for profile_obj_for_role in role_for_the_profile_list:
+            print("{}) {} を使う".format(count, profile_obj_for_role.name))
             count += 1
+
+
+
+
+
+

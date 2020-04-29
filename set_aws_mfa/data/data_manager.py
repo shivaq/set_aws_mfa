@@ -324,8 +324,12 @@ def switch_actions_for_role(profile, selected_num: int, role_for_the_profile_lis
         role_action_num = int(get_role_action(profile, new_role_list))
         # 再帰的に switch_actions_for_role() を呼び出す
         switch_actions_for_role(profile, role_action_num, new_role_list)
+    elif selected_num == 2:
+        prompts.prompt_roles_to_delete(role_for_the_profile_list)
+        selected_num = int(validate.validate_input_for_delete_role(role_for_the_profile_list))
+        delete_role_from_settings(role_for_the_profile_list[selected_num - 1])
     else:
-        return role_for_the_profile_list[selected_num - 2]
+        return role_for_the_profile_list[selected_num - 3]
 
 
 def get_role_action(profile, role_for_the_profile_list) -> int:
@@ -377,3 +381,29 @@ def writing_new_role_to_aws_config(profile: ProfileTuple, new_role_name: str):
     update_config_parser(AWS_CONFIG, section, "region", profile.region)
     update_config_parser(AWS_CONFIG, section, "role_arn", role_arn)
     update_config_parser(AWS_CONFIG, section, "source_profile", profile.name)
+
+
+#################################
+# Delete
+################################
+def delete_section(file_path: str, section: str):
+    """指定したセクションを削除する"""
+    prepare_to_read_local_ini_file(file_path)
+
+    # 当該セクションがなければ作成する
+    if not Config.has_section(section):
+        Config.add_section(section)
+
+    Config.remove_section(section)
+
+    filename = os.path.expanduser(file_path)
+    # ConfigParser への変更を実ファイルに反映する
+    with open(filename, "w") as configfile:
+        Config.write(configfile)
+
+
+def delete_role_from_settings(role_profile: ProfileTuple):
+    """設定ファイルから当該ロールを削除する"""
+    section = "profile " + role_profile.name
+
+    delete_section(AWS_CONFIG, section)

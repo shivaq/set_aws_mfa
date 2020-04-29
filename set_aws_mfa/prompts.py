@@ -33,6 +33,7 @@ MSG_ASK_SELECT_ROLE = "スイッチロール対象の番号を、選択してく
 MSG_DO_NOT_SWITCH = "0) スイッチロールを行わない"
 MSG_REGISTER_ROLE_BEFORE = "1) "
 MSG_REGISTER_ROLE_AFTER = "用のロールを設定ファイルに新規登録"
+MSG_DELETE_ROLE = "2) 設定ファイルから削除するロールを選ぶ"
 # 番号入力要求プロンプト
 MSG_ASK_SELECT_PROFILE = "Input a number for an aws login user."
 # AWS Account Id 入力要求プロンプト
@@ -91,12 +92,20 @@ def prompt_msg_for_the_profile_roles(profile: ProfileTuple, role_for_the_profile
         print("\n" + profile.name + " " + MSG_SUGGEST_SELECT_ROLE)
         print(MSG_DO_NOT_SWITCH)
         print(MSG_REGISTER_ROLE_BEFORE + profile.name + MSG_REGISTER_ROLE_AFTER)
-        count = 2
+        print(MSG_DELETE_ROLE)
+        count = 3
         for profile_obj_for_role in role_for_the_profile_list:
             print("{}) {} を使う".format(count, profile_obj_for_role.name))
             count += 1
 
 
+def prompt_roles_to_delete(role_for_the_profile_list:List[ProfileTuple]):
+    """ロール削除時に選択番号をプロンプト"""
+    print("\n削除するロールを選んでください")
+    count = 1
+    for role in role_for_the_profile_list:
+        print("{}) {}".format(count, role.name))
+        count += 1
 
 
 

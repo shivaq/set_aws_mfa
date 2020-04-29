@@ -196,5 +196,14 @@ def is_input_int_and_in_range(int_obj: IntObject, prompt_str: str, min_menu_num:
 def validate_input_actions_for_role(role_for_the_profile_list) -> int:
     prompt_str = INPUT_No
     min_menu_num = 0
-    max_menu_num = len(role_for_the_profile_list) + 1
+    max_menu_num = len(role_for_the_profile_list) + 2
     return ask_for_selection(prompt_str, min_menu_num, max_menu_num)
+
+
+def validate_input_for_delete_role(role_for_the_profile_list) -> int:
+    """ロール削除時のユーザー入力を validate"""
+    prompt_str = INPUT_No
+    min_menu_num = 1
+    max_menu_num = len(role_for_the_profile_list)
+    return ask_for_selection(prompt_str, min_menu_num, max_menu_num)
+

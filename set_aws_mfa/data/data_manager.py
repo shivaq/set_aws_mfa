@@ -289,7 +289,7 @@ def get_token_info(selected_profile: ProfileTuple, sts_client: boto3.session.Ses
                 1: lambda: print(MSG_EDIT_AWS_FILES),  # update profile
                 2: lambda: cli.access_aws_after_reset_aws_account_id(selected_profile),  # update aws account id
                 3: lambda: cli.access_aws_with_mfa_code(selected_profile),  # update mfa code
-                4: lambda: print("終了します")
+                4: lambda: exit(1)
             }
             return switcher[int(selected_measure)]()
 

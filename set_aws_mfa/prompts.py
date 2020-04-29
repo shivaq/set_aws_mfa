@@ -42,23 +42,12 @@ PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_BEFORE = "\n"
 PROMPT_ASK_MFA_TOKEN_FOR_PROFILE_AFTER = " 用のMFAコードを入力してください。"
 # ロール関係プロンプト
 MSG_SUGGEST_REGISTER_ROLE = "がスイッチできるロールがセットされていません。セットしますか？"
-MSG_SUGGEST_SELECT_ROLE = "スイッチするロールを選んでください"
+MSG_SUGGEST_SELECT_ROLE = "がスイッチするロールを選んでください"
 
 
 #################################
 # Asks for profile number input
 ################################
-def prompt_role_selection(role_list):
-    """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""
-    if len(role_list) != 0:
-        print(MSG_ASK_SELECT_ROLE)
-        print(MSG_DO_NOT_SWITCH)
-        count = 1
-        for profile_obj_for_role in role_list:
-            print("{}) {}".format(count, profile_obj_for_role.name))
-            count += 1
-
-
 def prompt_user_selection(perfect_profile_list):
     """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""
     if len(perfect_profile_list) != 0:
@@ -91,7 +80,16 @@ def prompt_for_asking_mfa_code(perfect_profile: ProfileTuple):
 def prompt_msg_for_the_profile_roles(profile: ProfileTuple, role_for_the_profile_list: List[ProfileTuple]):
     """選択したプロファイルでスイッチロールをするかどうか等のメッセージを表示する"""
     if len(role_for_the_profile_list) == 0:
-        print(profile.name + MSG_SUGGEST_REGISTER_ROLE)
+        print("\n" + profile.name + " " + MSG_SUGGEST_REGISTER_ROLE)
     else:
-        print(profile.name + MSG_SUGGEST_SELECT_ROLE)
+        print("\n" + profile.name + " " + MSG_SUGGEST_SELECT_ROLE)
 
+
+def prompt_role_selection(role_list):
+    """ターミナルに、プロフィール番号の選択を促すプロンプトを表示する"""
+    if len(role_list) != 0:
+        print(MSG_DO_NOT_SWITCH)
+        count = 1
+        for profile_obj_for_role in role_list:
+            print("{}) {}".format(count, profile_obj_for_role.name))
+            count += 1

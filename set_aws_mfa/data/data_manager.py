@@ -340,16 +340,20 @@ def get_role_action(profile, role_for_the_profile_list) -> int:
 def update_config_parser(file_path: str, section: str, key: str, value):
     prepare_to_read_local_ini_file(file_path)
 
-    Config[section] = {key: value}
+    # 当該セクションがなければ作成する
+    if not Config.has_section(section):
+        Config.add_section(section)
+
+    Config.set(section, key, value)
 
     filename = os.path.expanduser(file_path)
+    # ConfigParser への変更を実ファイルに反映する
     with open(filename, "w") as configfile:
         Config.write(configfile)
 
 
 def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
     """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
-
     update_config_parser(AWS_ACCOUNT_FOR_SET_AWS_MFA, profile.name, "aws_account_id", aws_account_id)
 
 
@@ -361,3 +365,15 @@ def reset_aws_account_id(perfect_profile: ProfileTuple):
     writing_aws_account_to_the_file(perfect_profile, aws_account_id)
     # 再帰的に本関数を呼び出して、書き込み済みの aws account id を取得する
     get_aws_account_id(perfect_profile)
+
+
+def writing_new_role_to_aws_config(profile: ProfileTuple, new_role_name: str):
+    """新規ロールを ~/.aws/config に登録する"""
+
+    section = "profile " + new_role_name
+    aws_account_id = str(get_aws_account_id(profile))
+    role_arn = "arn:aws:iam::" + aws_account_id + ":role/" + new_role_name
+
+    update_config_parser(AWS_CONFIG, section, "region", profile.region)
+    update_config_parser(AWS_CONFIG, section, "role_arn", role_arn)
+    update_config_parser(AWS_CONFIG, section, "source_profile", profile.name)

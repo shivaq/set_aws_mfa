@@ -191,3 +191,10 @@ def is_input_int_and_in_range(int_obj: IntObject, prompt_str: str, min_menu_num:
         print(PROMPT_USER_INPUT_BEFORE + str(user_input) + PROMPT_USER_INPUT_AFTER)
         print(PROMPT_ENTER_AN_INT + "\n")
         return False
+
+
+def validate_input_actions_for_role(role_for_the_profile_list) -> int:
+    prompt_str = INPUT_No
+    min_menu_num = 0
+    max_menu_num = len(role_for_the_profile_list) + 1
+    return ask_for_selection(prompt_str, min_menu_num, max_menu_num)

@@ -308,6 +308,32 @@ def get_mfa_arn(perfect_profile: ProfileTuple) -> str:
         get_aws_account_id(perfect_profile)) + AWS_IAM_ARN_MFA_PART + perfect_profile.name
 
 
+def switch_actions_for_role(profile, selected_num: int, role_for_the_profile_list):
+    """ユーザー入力に応じた、ロール関連のアクションを実行する"""
+    if selected_num == 0:
+        return profile
+    elif selected_num == 1:
+        # 追加登録するロール名を取得
+        new_role_name = helper.get_input("ロールの名前 :")
+        # ロールを新規登録
+        writing_new_role_to_aws_config(profile, new_role_name)
+        # 新規 Profile リスト、ロールリストを取得
+        profile_obj_list = get_profile_obj_list()
+        new_role_list = get_role_list_for_a_profile(profile, profile_obj_list)
+        # 再度ロールのアクションを選択
+        role_action_num = int(get_role_action(profile, new_role_list))
+        # 再帰的に switch_actions_for_role() を呼び出す
+        switch_actions_for_role(profile, role_action_num, new_role_list)
+    else:
+        return role_for_the_profile_list[selected_num - 2]
+
+
+def get_role_action(profile, role_for_the_profile_list) -> int:
+    """スイッチロール関連のアクションと紐づく番号を取得する"""
+    prompts.prompt_msg_for_the_profile_roles(profile, role_for_the_profile_list)
+    return validate.validate_input_actions_for_role(role_for_the_profile_list)
+
+
 #################################
 # Update
 ################################

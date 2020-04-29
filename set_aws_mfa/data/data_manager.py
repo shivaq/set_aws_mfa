@@ -77,20 +77,16 @@ def create_aws_account_id_file():
     helper.create_a_file_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
-def create_a_file_to_set_env_var(token_info):
+def create_a_file_to_set_env_var(token_info: dict, profile: ProfileTuple):
     filename = os.path.expanduser(AWS_TMP_TOKEN)
-    # TODO: スイッチ対象のロールの有無を取得する
-    # パラメータ w のため、ファイルがない場合は作成し、ある場合は上書きする
     with open(filename, "w") as tk:
         tk.write("export AWS_ACCESS_KEY_ID=" + token_info['Credentials']['AccessKeyId'] + "\n")
         tk.write("export AWS_SECRET_ACCESS_KEY=" + token_info['Credentials']['SecretAccessKey'] + "\n")
         tk.write("export AWS_SESSION_TOKEN=" + token_info['Credentials']['SessionToken'] + "\n")
-        tk.write("export AWS_SECURITY_TOKEN=" + token_info['Credentials']['SessionToken'] + "\n")
+        tk.write("export AWS_ROLE_SESSION_NAME=" + profile.name + "\n")
         tk.write("export AWS_SDK_LOAD_CONFIG=true\n")
-        # TODO: スイッチロールをする場合は、環境変数にセットする
-        # todo: デフォルトリージョンを登録する
-        # tk("export AWS_PROFILE=" + role_to_switch + "\n")
-        # tk("export AWS_DEFAULT_REGION=" + region + "\n")
+        tk.write("export AWS_DEFAULT_REGION=" + profile.region + "\n")
+        tk.write("export AWS_PROFILE=" + profile.name + "\n")
 
 
 #################################

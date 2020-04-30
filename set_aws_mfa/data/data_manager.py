@@ -77,17 +77,22 @@ def create_aws_account_id_file():
     helper.create_a_file_in_local(AWS_ACCOUNT_FOR_SET_AWS_MFA)
 
 
-def create_a_file_to_set_env_var(token_info: dict, profile: ProfileTuple):
+def create_a_file_to_set_env_var(token_info: dict, profile: ProfileTuple, role_profile: ProfileTuple):
     filename = os.path.expanduser(AWS_TMP_TOKEN)
+    profile_to_set = profile
+    if profile != role_profile:
+        profile_to_set = role_profile
     with open(filename, "w") as tk:
-        tk.write("export AWS_ACCESS_KEY_ID=" + token_info['Credentials']['AccessKeyId'] + "\n")
-        tk.write("export AWS_SECRET_ACCESS_KEY=" + token_info['Credentials']['SecretAccessKey'] + "\n")
+        # 下記環境変数が設定されていると、AWS_PROFILE が機能しないため、コメントアウト
+        # tk.write("export AWS_ACCESS_KEY_ID=" + token_info['Credentials']['AccessKeyId'] + "\n")
+        # tk.write("export AWS_SECRET_ACCESS_KEY=" + token_info['Credentials']['SecretAccessKey'] + "\n")
         tk.write("export AWS_SESSION_TOKEN=" + token_info['Credentials']['SessionToken'] + "\n")
         tk.write("export AWS_ROLE_SESSION_NAME=" + profile.name + "\n")
         tk.write("export AWS_SDK_LOAD_CONFIG=true\n")
         tk.write("export AWS_DEFAULT_REGION=" + profile.region + "\n")
-        tk.write("export AWS_PROFILE=" + profile.name + "\n")
+        tk.write("export AWS_PROFILE=" + profile_to_set.name + "\n")
 
+# aws sts get-caller-identity --profile staging
 
 #################################
 # Read
@@ -317,17 +322,12 @@ def switch_actions_for_role(profile, selected_num: int, role_for_the_profile_lis
         new_role_name = helper.get_input("ロールの名前 :")
         # ロールを新規登録
         writing_new_role_to_aws_config(profile, new_role_name)
-        # 新規 Profile リスト、ロールリストを取得
-        profile_obj_list = get_profile_obj_list()
-        new_role_list = get_role_list_for_a_profile(profile, profile_obj_list)
-        # 再度ロールのアクションを選択
-        role_action_num = int(get_role_action(profile, new_role_list))
-        # 再帰的に switch_actions_for_role() を呼び出す
-        switch_actions_for_role(profile, role_action_num, new_role_list)
+        switch_actions_again(profile)
     elif selected_num == 2:
         prompts.prompt_roles_to_delete(role_for_the_profile_list)
         selected_num = int(validate.validate_input_for_delete_role(role_for_the_profile_list))
         delete_role_from_settings(role_for_the_profile_list[selected_num - 1])
+        switch_actions_again(profile)
     else:
         return role_for_the_profile_list[selected_num - 3]
 
@@ -336,6 +336,16 @@ def get_role_action(profile, role_for_the_profile_list) -> int:
     """スイッチロール関連のアクションと紐づく番号を取得する"""
     prompts.prompt_msg_for_the_profile_roles(profile, role_for_the_profile_list)
     return validate.validate_input_actions_for_role(role_for_the_profile_list)
+
+
+def switch_actions_again(profile: ProfileTuple):
+    # 新規 Profile リスト、ロールリストを取得
+    profile_obj_list = get_profile_obj_list()
+    new_role_list = get_role_list_for_a_profile(profile, profile_obj_list)
+    # 再度ロールのアクションを選択
+    role_action_num = int(get_role_action(profile, new_role_list))
+    # 再帰的に switch_actions_for_role() を呼び出す
+    switch_actions_for_role(profile, role_action_num, new_role_list)
 
 
 #################################

@@ -1,37 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import subprocess
-import re
-from set_aws_mfa.prompts import MSG_ASK_SELECT_PROFILE
-
-# 1. ジーザスはターミナルを開く
-# 1. ジーザスが set_aws_mfa コマンドを叩くと、有効なユーザーリストが表示される
+from tests.conftest import BUILTIN_INPUTS
+from set_aws_mfa.data import data_manager
+from set_aws_mfa import validate
 
 
-def test_prompt_iam_user_list(perfect_profile_list):
+def test_switch_role(monkeypatch, profile_which_has_role):
+    """ユーザーインプットから、MFA Arn を取得するまでの流れをテスト
+    以降の処理は、テンポラリーなコード入力が必要なため、テストを断念
     """
-    コマンドを叩くと、Iam ユーザーを選択する画面が表示される
-    """
+    validate.check_aws_config_existence()
+    validate.check_aws_credentials_existence()
 
-    # WHEN: コンソールでコマンドを実行
-    result = subprocess.run(
-        ['python', 'src/set_mfa/set_mfa.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # GIVEN: profile object list
+    profile_obj_list = data_manager.get_profile_obj_list()
 
-    lines = result.stdout.decode('utf-8').rstrip().splitlines()
+    # GIVEN: position of a profile which can be switched to a role
+    position_in_list = [i for i, x in enumerate(profile_obj_list) if x == profile_which_has_role]
 
-    # GIVEN: 有効なプロフィールがあった場合(プロンプトが標準出力に表示された場合)
-    if len(lines) > 1:
-        # THEN: プロンプトの文字列が出力される
-        assert lines[0] == MSG_ASK_SELECT_PROFILE
-        for i, line in enumerate(lines):
-            # GIVEN: プロンプトの1行目及び最後以外の行の出力を確認したとき
-            if i != 0 and i != len(lines) -1:
-                # THEN: 数値) で始まる出力がなされる
-                assert re.compile(r"^[0-99]+\)\s").match(line)
+    # GIVEN: Mock input to select a profile which can be switched to a role
+    user_input = position_in_list[0] + 1
+    monkeypatch.setattr(BUILTIN_INPUTS, lambda _: user_input)
+    selected_profile = data_manager.get_selected_profile()
+    mfa_arn = data_manager.get_mfa_arn(selected_profile)
+    assert profile_which_has_role.name in mfa_arn
 
-
-# 1. リストに表示された番号を入力すると、MFA の入力を求められる
-
-# 1. MFA を入力すると認証が実行される
-
-# 1. 選択したユーザーの前回のログイン日情報が表示される(IAM へのアクセスができたことがわかる)

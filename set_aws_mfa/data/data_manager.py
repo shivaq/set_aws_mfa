@@ -366,8 +366,9 @@ def update_config_parser(file_path: str, section: str, key: str, value):
         Config.write(configfile)
 
 
-def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id: int):
+def writing_aws_account_to_the_file(profile: ProfileTuple, aws_account_id):
     """該当 profile の aws account id を AWS_ACCOUNT_FOR_SET_AWS_MFA に書き込む"""
+    aws_account_id = str(aws_account_id)
     update_config_parser(AWS_ACCOUNT_FOR_SET_AWS_MFA, profile.name, "aws_account_id", aws_account_id)
 
 

@@ -23,3 +23,6 @@ pytest-cov = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+execute = "python3 -m set_aws_mfa"

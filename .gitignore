@@ -2,6 +2,7 @@
 # !!!!!! Commit everything you want!
 # Then, git rm -rf --cached .
 # git add .
+.idea/
 .venv/
 .vscode/
 .coverage

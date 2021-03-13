@@ -92,7 +92,6 @@ def create_a_file_to_set_env_var(token_info: dict, profile: ProfileTuple, role_p
         tk.write("export AWS_DEFAULT_REGION=" + profile.region + "\n")
         tk.write("export AWS_PROFILE=" + profile_to_set.name + "\n")
 
-# aws sts get-caller-identity --profile staging
 
 #################################
 # Read
